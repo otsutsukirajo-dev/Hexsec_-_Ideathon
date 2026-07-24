@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PointagePro</string>
+    <string name="title_activity_main">PointagePro</string>
+    <string name="package_name">com.pointagepro.app</string>
+    <string name="custom_url_scheme">com.pointagepro.app</string>
+</resources>

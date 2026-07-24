@@ -1,0 +1,23 @@
+# Dépendances
+node_modules/
+
+# Builds et distributions
+dist/
+build/
+www/
+
+# Android / Gradle / Capacitor builds
+android/.gradle/
+android/app/build/
+android/app/release/
+*.apk
+*.aab
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+*.log
+
+# Exclure les installateurs et exécutables
+*.exe
+projet_final/
