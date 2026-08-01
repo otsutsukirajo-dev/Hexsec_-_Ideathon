@@ -14,7 +14,22 @@ QR Code · Géolocalisation · 100% Offline-First · Multi-plateforme
 
 *Une seule base de code, déployée en PWA, en application Android (APK) et en application desktop (Windows), sans dépendre d'une connexion permanente.*
 
+**Équipe HexSec** — Meddy · Rajo · Mario · Kiady · Rio
+Projet réalisé dans le cadre du **Data Day 2026 — Hackathon Dev**.
+
 </div>
+
+---
+
+## Liens du projet
+
+| Ressource | Lien |
+|---|---|
+| 🎥 Démo vidéo | [À COMPLÉTER — lien YouTube/Drive non répertorié, ou "voir démonstration en direct le jour du jury"] |
+| 📱 APK Android | [À COMPLÉTER — pas encore déposée, voir "Feuille de route" ci-dessous] |
+| 📊 Pitch (PowerPoint) | [`PointagePro_DataDay2026.pptx`](./PointagePro_DataDay2026.pptx) |
+
+> ⚠️ Tous les livrables sont à la racine du repo (pas de sous-dossier `deliverables/`). Dès que l'APK compilée est ajoutée, mets à jour la ligne ci-dessus avec son nom de fichier exact.
 
 ---
 
@@ -22,7 +37,7 @@ QR Code · Géolocalisation · 100% Offline-First · Multi-plateforme
 
 Fini les feuilles de présence papier, les badgeuses hors de prix et les systèmes qui plantent dès que le réseau tousse. PointagePro transforme n'importe quel smartphone ou ordinateur en terminal de pointage — scan QR, position GPS, et ça continue de fonctionner même sans connexion internet grâce à une base de données locale qui se synchronise automatiquement au retour du réseau.
 
-Conçu pour des contextes à connectivité instable (terrain, zones rurales, sites décentralisés), le projet a été développé par l'équipe **Hexsec** dans le cadre d'un ideathon.
+Conçu pour des contextes à connectivité instable (terrain, zones rurales, sites décentralisés), le projet a été développé par l'équipe **HexSec** dans le cadre d'un ideathon.
 
 ---
 
@@ -68,7 +83,7 @@ Conçu pour des contextes à connectivité instable (terrain, zones rurales, sit
 
 ---
 
-## Démarrage rapide
+## Mode d'emploi — démarrage rapide
 
 **Option 1 — Navigateur direct**
 
@@ -111,6 +126,8 @@ npx cap open android
 ```
 Puis lancer le build depuis Android Studio.
 
+Sinon, pour tester directement sans compiler : une APK prête à installer sera déposée à la racine du repo avant le dépôt final (source inconnue autorisée dans les paramètres Android).
+
 ---
 
 ## Comptes de démonstration
@@ -141,6 +158,8 @@ pointagepro/
 ├── dexie.min.js                 Wrapper IndexedDB pour le stockage offline
 ├── build-win.ps1              Script de build Windows
 ├── package.json               Dépendances et scripts (npm, Electron, Capacitor)
+├── PointagePro_DataDay2026.pptx  Pitch de présentation (dépôt hackathon)
+├── PointagePro.apk             APK compilée — à ajouter avant le dépôt final
 └── README.md                  Documentation
 ```
 
@@ -169,6 +188,9 @@ Le cœur de l'application (scan, stockage offline, synchronisation, exports) est
 
 ---
 
-## Contexte du projet
+## Équipe & contexte du projet
 
-PointagePro a été développé par l'équipe **Hexsec** dans le cadre d'un ideathon, comme réponse au problème du suivi de présence dans des environnements à connectivité instable. L'accent a été mis sur une architecture offline-first fonctionnant sur trois plateformes (web, Android, desktop) à partir d'une base de code unique.
+**HexSec**
+Meddy · Rajo · Mario · Kiady · Rio
+
+PointagePro a été développé par l'équipe HexSec dans le cadre d'un ideathon (Data Day 2026), comme réponse au problème du suivi de présence dans des environnements à connectivité instable. L'accent a été mis sur une architecture offline-first fonctionnant sur trois plateformes (web, Android, desktop) à partir d'une base de code unique.
