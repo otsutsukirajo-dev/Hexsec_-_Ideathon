@@ -15,7 +15,7 @@
 **Une seule base de code. Trois plateformes. Zéro dépendance au réseau.**
 *Web (PWA) · Android (APK) · Desktop (Windows)*
 
-[Démo](#-liens-du-projet) · [Fonctionnalités](#-fonctionnalités) · [Installation](#-installation) · [Architecture](#-architecture) · [Stack technique](#-stack-technique) · [Équipe](#-léquipe)
+[Démo](#liens-du-projet) · [Fonctionnalités](#fonctionnalités) · [Installation](#installation) · [Architecture](#architecture) · [Stack technique](#stack-technique) · [Équipe](#léquipe)
 
 </div>
 
@@ -184,7 +184,7 @@ Le cœur de l'application — scan, stockage offline, synchronisation, exports �
 
 ### HexSec
 
-**Meddy** · **Rajo** · **Mario** · **Kiady** · **Rio**
+**Meddy** · **Rajo** · **Mihajasoa** (Mario) · **Kiady** · **Rio**
 
 Projet conçu et développé dans le cadre du **Data Day 2026 — Hackathon Dev**.
 
