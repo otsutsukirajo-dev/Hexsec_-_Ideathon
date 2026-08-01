@@ -4,7 +4,7 @@
 
 ### La gestion de présence, réinventée.
 
-QR Code · Géolocalisation · 100% Offline-First · Multi-plateforme
+**QR Code · Géolocalisation · 100 % Offline-First · Multi-plateforme**
 
 [![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=for-the-badge&logo=googlechrome&logoColor=white)](#)
 [![Android](https://img.shields.io/badge/Android-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](#)
@@ -12,36 +12,36 @@ QR Code · Géolocalisation · 100% Offline-First · Multi-plateforme
 [![Offline First](https://img.shields.io/badge/Offline-First-00C853?style=for-the-badge&logo=cloudflare&logoColor=white)](#)
 [![License](https://img.shields.io/badge/License-MIT-orange?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](#)
 
-*Une seule base de code, déployée en PWA, en application Android (APK) et en application desktop (Windows), sans dépendre d'une connexion permanente.*
+**Une seule base de code. Trois plateformes. Zéro dépendance au réseau.**
+*Web (PWA) · Android (APK) · Desktop (Windows)*
 
-**Équipe HexSec** — Meddy · Rajo · Mario · Kiady · Rio
-Projet réalisé dans le cadre du **Data Day 2026 — Hackathon Dev**.
+[Démo](#-liens-du-projet) · [Fonctionnalités](#-fonctionnalités) · [Installation](#-installation) · [Architecture](#-architecture) · [Stack technique](#-stack-technique) · [Équipe](#-léquipe)
 
 </div>
 
----
+<br>
 
-## Liens du projet
+## Le problème
 
-| Ressource | Lien |
+Le papier se perd. Les badgeuses coûtent cher et tombent en panne dès qu'un site est isolé. Le numérique classique exige une connexion permanente — un luxe que beaucoup de terrains n'ont pas. Résultat : des présences perdues, du temps perdu, de la confiance perdue.
+
+**PointagePro** transforme n'importe quel smartphone ou ordinateur en terminal de pointage complet — scan QR, géolocalisation automatique — et continue de fonctionner même sans connexion internet, grâce à une base de données locale qui se synchronise dès que le réseau revient.
+
+Conçu pour les environnements à connectivité instable (terrain, zones rurales, sites décentralisés), et développé par l'équipe **HexSec**.
+
+<br>
+
+## 🔗 Liens du projet
+
+| Ressource | Accès |
 |---|---|
-| 🎥 Démo vidéo | [À COMPLÉTER — lien YouTube/Drive non répertorié, ou "voir démonstration en direct le jour du jury"] |
-| 📱 APK Android | [À COMPLÉTER — pas encore déposée, voir "Feuille de route" ci-dessous] |
-| 📊 Pitch (PowerPoint) | [`PointagePro_DataDay2026.pptx`](./PointagePro_DataDay2026.pptx) |
+| 📱 **Application Android (APK)** | [`PointagePro.apk`](./PointagePro.apk) |
+| 📊 **Pitch (PowerPoint)** | [`PointagePro_DataDay2026.pptx`](./PointagePro_DataDay2026.pptx) |
+| 🌐 **Version web (PWA)** | Ouvrir `index.html`, ou suivre la section [Installation](#-installation) |
 
-> ⚠️ Tous les livrables sont à la racine du repo (pas de sous-dossier `deliverables/`). Dès que l'APK compilée est ajoutée, mets à jour la ligne ci-dessus avec son nom de fichier exact.
+<br>
 
----
-
-## Pourquoi PointagePro
-
-Fini les feuilles de présence papier, les badgeuses hors de prix et les systèmes qui plantent dès que le réseau tousse. PointagePro transforme n'importe quel smartphone ou ordinateur en terminal de pointage — scan QR, position GPS, et ça continue de fonctionner même sans connexion internet grâce à une base de données locale qui se synchronise automatiquement au retour du réseau.
-
-Conçu pour des contextes à connectivité instable (terrain, zones rurales, sites décentralisés), le projet a été développé par l'équipe **HexSec** dans le cadre d'un ideathon.
-
----
-
-## Fonctionnalités
+## ✨ Fonctionnalités
 
 <table>
 <tr>
@@ -52,11 +52,11 @@ Conçu pour des contextes à connectivité instable (terrain, zones rurales, sit
 <td valign="top">
 
 - Scan QR Code en caméra native (Android) ou navigateur
-- Génération de QR Code personnel téléchargeable (PNG)
-- Géolocalisation automatique au pointage
-- Création de compte et connexion sécurisée
+- QR Code personnel généré et téléchargeable (PNG)
+- Géolocalisation automatique à chaque pointage
+- Connexion et compte sécurisés
 - Thème clair / sombre
-- Notifications en temps réel (toasts)
+- Confirmation en temps réel à chaque pointage
 
 </td>
 <td valign="top">
@@ -76,61 +76,48 @@ Conçu pour des contextes à connectivité instable (terrain, zones rurales, sit
 | Capacité | Détail |
 |---|---|
 | Scanner QR double moteur | Scanner natif via Capacitor sur Android (APK), avec repli automatique sur `html5-qrcode` dans un navigateur classique |
-| Base de données locale | IndexedDB via **Dexie.js** — les pointages sont écrits localement puis marqués `synchro` ou `en_attente` |
-| Mode Offline-First | Détection automatique de la perte/reprise de connexion, avec synchronisation différée des pointages en attente |
+| Base de données locale | IndexedDB via **Dexie.js** — chaque pointage est écrit localement puis marqué `synchro` ou `en_attente` |
+| Mode Offline-First | Détection automatique de la perte et de la reprise de connexion, avec synchronisation différée des pointages en attente |
 | Géolocalisation | Position GPS récupérée via `navigator.geolocation`, avec coordonnées de repli en cas de refus de permission |
 | Progressive Web App | Installable depuis le navigateur, fonctionne hors-ligne via Service Worker |
 
----
+<br>
 
-## Mode d'emploi — démarrage rapide
+## 🚀 Installation
 
-**Option 1 — Navigateur direct**
-
+**Navigateur direct**
 Ouvrir `index.html` dans Chrome, Firefox ou Safari.
 
-**Option 2 — Serveur local** *(recommandé pour tester le mode PWA et le scanner caméra)*
-
+**Serveur local** *(recommandé pour tester le mode PWA et le scanner caméra)*
 ```bash
-# Avec Python 3
-python -m http.server 8080
-
-# Avec Node.js
-npx serve .
+python -m http.server 8080     # avec Python 3
+npx serve .                    # avec Node.js
 ```
 Puis ouvrir [http://localhost:8080](http://localhost:8080)
 
-**Option 3 — Installer comme application (PWA)**
-
+**Installer comme application (PWA)**
 1. Ouvrir le projet dans Chrome
 2. Cliquer sur l'icône Installer dans la barre d'adresse
 3. Confirmer — l'app se comporte désormais comme une application native
 
-**Option 4 — Application desktop (Electron)**
-
+**Application desktop (Electron)**
 ```bash
 npm install
 npm start
-
-# Générer l'exécutable Windows (.exe)
-npm run build:win
+npm run build:win     # génère l'exécutable Windows (.exe)
 ```
 
-**Option 5 — Application Android (Capacitor)**
-
-Le projet Android est déjà généré dans le dossier `android/`. Pour compiler l'APK :
-
+**Application Android**
+Installer directement [`PointagePro.apk`](./PointagePro.apk) sur un appareil Android.
+Pour recompiler depuis les sources :
 ```bash
 npx cap sync android
-npx cap open android
+npx cap open android   # puis lancer le build depuis Android Studio
 ```
-Puis lancer le build depuis Android Studio.
 
-Sinon, pour tester directement sans compiler : une APK prête à installer sera déposée à la racine du repo avant le dépôt final (source inconnue autorisée dans les paramètres Android).
+<br>
 
----
-
-## Comptes de démonstration
+## 👤 Comptes de démonstration
 
 | Nom | Rôle | Accès |
 |---|---|---|
@@ -139,33 +126,33 @@ Sinon, pour tester directement sans compiler : une APK prête à installer sera 
 
 La création de compte est également disponible directement depuis l'application.
 
----
+<br>
 
-## Architecture du projet
+## 🏗 Architecture
 
 ```
 pointagepro/
-├── index.html               Application complète (interface + logique)
-├── app.js                    Logique métier (scanner, base de données, synchronisation)
-├── main.js                   Processus principal Electron
-├── preload.js                Pont sécurisé Electron
-├── sw.js                     Service Worker (mode offline PWA)
-├── manifest.json              Configuration PWA
-├── capacitor.config.ts        Configuration Capacitor (Android)
-├── android/                   Projet Android natif généré par Capacitor
-├── html5-qrcode.min.js         Scanner QR pour navigateur
-├── qrcode.min.js               Génération de QR Code
-├── dexie.min.js                 Wrapper IndexedDB pour le stockage offline
-├── build-win.ps1              Script de build Windows
-├── package.json               Dépendances et scripts (npm, Electron, Capacitor)
-├── PointagePro_DataDay2026.pptx  Pitch de présentation (dépôt hackathon)
-├── PointagePro.apk             APK compilée — à ajouter avant le dépôt final
-└── README.md                  Documentation
+├── index.html                    Application complète (interface + logique)
+├── app.js                        Logique métier — scanner, base de données, synchronisation
+├── main.js                       Processus principal Electron
+├── preload.js                    Pont sécurisé Electron
+├── sw.js                         Service Worker — mode offline PWA
+├── manifest.json                 Configuration PWA
+├── capacitor.config.ts           Configuration Capacitor (Android)
+├── android/                      Projet Android natif généré par Capacitor
+├── html5-qrcode.min.js           Scanner QR pour navigateur
+├── qrcode.min.js                 Génération de QR Code
+├── dexie.min.js                  Wrapper IndexedDB pour le stockage offline
+├── build-win.ps1                 Script de build Windows
+├── package.json                  Dépendances et scripts (npm, Electron, Capacitor)
+├── PointagePro.apk                Application Android compilée
+├── PointagePro_DataDay2026.pptx  Pitch de présentation
+└── README.md
 ```
 
----
+<br>
 
-## Stack technique
+## 🛠 Stack technique
 
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)](#)
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)](#)
@@ -175,22 +162,35 @@ pointagepro/
 [![Electron](https://img.shields.io/badge/Electron-Desktop-47848F?style=flat-square&logo=electron&logoColor=white)](#)
 [![Service Workers](https://img.shields.io/badge/Service_Workers-PWA-4285F4?style=flat-square&logo=googlechrome&logoColor=white)](#)
 
----
+<br>
 
-## Feuille de route production
+## 🗺 Feuille de route
 
-Le cœur de l'application (scan, stockage offline, synchronisation, exports) est fonctionnel. Étapes recommandées pour un déploiement à grande échelle :
+Le cœur de l'application — scan, stockage offline, synchronisation, exports — est fonctionnel dès aujourd'hui. Prochaines étapes pour un déploiement à grande échelle :
 
-- [ ] Remplacer l'authentification côté client par un backend avec API sécurisée
-- [ ] Connecter la synchronisation à un service distant (Firebase Firestore ou Supabase) au lieu d'un stockage purement local
-- [ ] Publier l'APK sur le Google Play Store (signature, révision des permissions Capacitor)
-- [ ] Ajouter des tests automatisés sur la logique de synchronisation offline/online
+- Remplacer l'authentification côté client par un backend avec API sécurisée
+- Connecter la synchronisation à un service distant (Firebase Firestore ou Supabase)
+- Publier l'application sur le Google Play Store
+- Ajouter des tests automatisés sur la logique de synchronisation offline/online
 
----
+<br>
 
-## Équipe & contexte du projet
+## 👥 L'équipe
 
-**HexSec**
-Meddy · Rajo · Mario · Kiady · Rio
+<div align="center">
 
-PointagePro a été développé par l'équipe HexSec dans le cadre d'un ideathon (Data Day 2026), comme réponse au problème du suivi de présence dans des environnements à connectivité instable. L'accent a été mis sur une architecture offline-first fonctionnant sur trois plateformes (web, Android, desktop) à partir d'une base de code unique.
+### HexSec
+
+**Meddy** · **Rajo** · **Mario** · **Kiady** · **Rio**
+
+Projet conçu et développé dans le cadre du **Data Day 2026 — Hackathon Dev**.
+
+</div>
+
+<br>
+
+<div align="center">
+
+*PointagePro — le pointage qui n'attend pas le réseau pour exister.*
+
+</div>
