@@ -35,9 +35,12 @@ Conçu pour les environnements à connectivité instable (terrain, zones rurales
 
 | Ressource | Accès |
 |---|---|
-| **Application Android (APK)** | [`PointagePro.apk`](./PointagePro.apk) |
+| **Application Android (APK)** | [`app-debug.apk`](https://github.com/otsutsukirajo-dev/Hexsec_-_Ideathon/releases/download/v1.0.0/app-debug.apk) |
+| **Application Desktop (Windows)** | [`PointagePro.Setup.1.0.0.exe`](https://github.com/otsutsukirajo-dev/Hexsec_-_Ideathon/releases/download/v1.0.0/PointagePro.Setup.1.0.0.exe) |
 | **Pitch (PowerPoint)** | [`PointagePro_DataDay2026.pptx`](./PointagePro_DataDay2026.pptx) |
 | **Version web (PWA)** | Ouvrir `index.html`, ou suivre la section [Installation](#-installation) |
+
+*L'APK Android et l'exécutable Windows sont distribués via GitHub Releases.*
 
 <br>
 
@@ -101,6 +104,7 @@ Puis ouvrir [http://localhost:8080](http://localhost:8080)
 3. Confirmer — l'app se comporte désormais comme une application native
 
 **Application desktop (Electron)**
+Installer directement [`PointagePro.Setup.1.0.0.exe`](https://github.com/otsutsukirajo-dev/Hexsec_-_Ideathon/releases/download/v1.0.0/PointagePro.Setup.1.0.0.exe), ou compiler depuis les sources :
 ```bash
 npm install
 npm start
@@ -108,7 +112,7 @@ npm run build:win     # génère l'exécutable Windows (.exe)
 ```
 
 **Application Android**
-Installer directement [`PointagePro.apk`](./PointagePro.apk) sur un appareil Android.
+Installer directement [`app-debug.apk`](https://github.com/otsutsukirajo-dev/Hexsec_-_Ideathon/releases/download/v1.0.0/app-debug.apk) sur un appareil Android.
 Pour recompiler depuis les sources :
 ```bash
 npx cap sync android
@@ -145,7 +149,6 @@ pointagepro/
 ├── dexie.min.js                  Wrapper IndexedDB pour le stockage offline
 ├── build-win.ps1                 Script de build Windows
 ├── package.json                  Dépendances et scripts (npm, Electron, Capacitor)
-├── PointagePro.apk                Application Android compilée
 ├── PointagePro_DataDay2026.pptx  Pitch de présentation
 └── README.md
 ```
