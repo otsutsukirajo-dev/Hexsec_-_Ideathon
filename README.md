@@ -31,17 +31,17 @@ Conçu pour les environnements à connectivité instable (terrain, zones rurales
 
 <br>
 
-## 🔗 Liens du projet
+## Liens du projet
 
 | Ressource | Accès |
 |---|---|
-| 📱 **Application Android (APK)** | [`PointagePro.apk`](./PointagePro.apk) |
-| 📊 **Pitch (PowerPoint)** | [`PointagePro_DataDay2026.pptx`](./PointagePro_DataDay2026.pptx) |
-| 🌐 **Version web (PWA)** | Ouvrir `index.html`, ou suivre la section [Installation](#-installation) |
+| **Application Android (APK)** | [`PointagePro.apk`](./PointagePro.apk) |
+| **Pitch (PowerPoint)** | [`PointagePro_DataDay2026.pptx`](./PointagePro_DataDay2026.pptx) |
+| **Version web (PWA)** | Ouvrir `index.html`, ou suivre la section [Installation](#-installation) |
 
 <br>
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
 <table>
 <tr>
@@ -83,7 +83,7 @@ Conçu pour les environnements à connectivité instable (terrain, zones rurales
 
 <br>
 
-## 🚀 Installation
+## Installation
 
 **Navigateur direct**
 Ouvrir `index.html` dans Chrome, Firefox ou Safari.
@@ -117,7 +117,7 @@ npx cap open android   # puis lancer le build depuis Android Studio
 
 <br>
 
-## 👤 Comptes de démonstration
+## Comptes de démonstration
 
 | Nom | Rôle | Accès |
 |---|---|---|
@@ -128,7 +128,7 @@ La création de compte est également disponible directement depuis l'applicatio
 
 <br>
 
-## 🏗 Architecture
+## Architecture
 
 ```
 pointagepro/
@@ -152,7 +152,7 @@ pointagepro/
 
 <br>
 
-## 🛠 Stack technique
+## Stack technique
 
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)](#)
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)](#)
@@ -164,7 +164,7 @@ pointagepro/
 
 <br>
 
-## 🗺 Feuille de route
+## Feuille de route
 
 Le cœur de l'application — scan, stockage offline, synchronisation, exports — est fonctionnel dès aujourd'hui. Prochaines étapes pour un déploiement à grande échelle :
 
@@ -175,7 +175,7 @@ Le cœur de l'application — scan, stockage offline, synchronisation, exports �
 
 <br>
 
-## 👥 L'équipe
+## L'équipe
 
 <div align="center">
 
