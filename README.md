@@ -1,7 +1,17 @@
 <div align="center">
 
 # PointagePro
+## L'équipe
 
+<div align="center">
+
+### HexSec
+
+**Rajo** · **Meddy** · **Mihajasoa** · **Kiady**
+
+Projet conçu et développé dans le cadre du **Data Day 2026 — Hackathon Dev**.
+
+</div>
 ### La gestion de présence, réinventée.
 
 **QR Code · Géolocalisation · 100 % Offline-First · Multi-plateforme**
