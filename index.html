@@ -1896,9 +1896,7 @@
 
           <div class="filter-bar">
             <select class="month-select" id="monthFilter" onchange="renderHistory()">
-              <option value="2026-05">Mai 2026</option>
-              <option value="2026-04">Avril 2026</option>
-              <option value="2026-03">Mars 2026</option>
+              <!-- Options générées dynamiquement par populateMonthFilter() -->
             </select>
             <div class="filter-tabs">
               <div class="filter-tab active" onclick="setHistFilter('Tous',this)">Tous</div>
@@ -2440,6 +2438,7 @@
       initSidebarForRole();
       updateUserUI();
       updateGreet();
+      populateMonthFilter();
       updateStats();
       renderManagerTable();
       renderTodayTable();
@@ -2897,6 +2896,31 @@
     }
 
     // ─── HISTORIQUE ──────────────────────────────────────────────────
+
+    /**
+     * Génère dynamiquement les options du sélecteur de mois (mois courant
+     * + 2 mois précédents), basées sur la date système réelle.
+     * Corrige le bug où "Mai/Avril/Mars 2026" étaient figés en dur et ne
+     * correspondaient jamais aux pointages réellement enregistrés
+     * (créés avec `new Date()` au moment du scan).
+     */
+    function populateMonthFilter() {
+      const sel = document.getElementById('monthFilter');
+      if (!sel) return;
+      const noms = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      const now = new Date();
+      let optionsHtml = '';
+      for (let i = 0; i < 3; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const y = d.getFullYear();
+        const m = (d.getMonth() + 1).toString().padStart(2, '0');
+        const value = `${y}-${m}`;
+        const label = `${noms[d.getMonth()]} ${y}`;
+        optionsHtml += `<option value="${value}">${label}</option>`;
+      }
+      sel.innerHTML = optionsHtml;
+    }
+
     function setHistFilter(f, el) {
       histFilter = f;
       document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
@@ -2905,7 +2929,22 @@
     }
 
     function renderHistory() {
-      const allData = [...SAMPLE_HIST, ...myPointages.map(p => ({ ...p, date: p.date || new Date().toLocaleDateString('fr-FR') }))];
+      const monthSel = document.getElementById('monthFilter');
+      const monthValue = monthSel ? monthSel.value : null; // ex: "2026-08"
+
+      const rawData = [...SAMPLE_HIST, ...myPointages.map(p => ({ ...p, date: p.date || new Date().toLocaleDateString('fr-FR') }))];
+
+      // Bug 1 (corrigé) : on filtre réellement par mois sélectionné, en comparant
+      // "YYYY-MM" extrait de p.date (format DD/MM/YYYY) avec la valeur du select.
+      const allData = monthValue
+        ? rawData.filter(p => {
+            const parts = p.date.split('/'); // [DD, MM, YYYY]
+            if (parts.length < 3) return false;
+            const pointageMonthValue = `${parts[2]}-${parts[1]}`;
+            return pointageMonthValue === monthValue;
+          })
+        : rawData;
+
       const data = histFilter === 'Tous' ? allData : allData.filter(p => p.status === histFilter);
 
       const p = allData.filter(x => x.status === 'Présent').length;
@@ -2914,7 +2953,9 @@
       document.getElementById('hCountPresent').textContent = p;
       document.getElementById('hCountRetard').textContent = r;
       document.getElementById('hCountAbsent').textContent = a;
-      document.getElementById('histSubtitle').textContent = `${allData.length} enregistrement${allData.length > 1 ? 's' : ''}`;
+      // Bug 2 (corrigé) : le compteur reflète maintenant la liste réellement affichée
+      // (data, filtrée par onglet ET par mois), plus allData (non filtrée par onglet).
+      document.getElementById('histSubtitle').textContent = `${data.length} enregistrement${data.length > 1 ? 's' : ''}`;
 
       const el = document.getElementById('histList');
       if (data.length === 0) {
