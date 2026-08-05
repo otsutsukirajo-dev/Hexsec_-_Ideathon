@@ -614,6 +614,132 @@
       border: 1px solid var(--border);
     }
 
+    /* ─── CALENDRIER INTELLIGENT ─── */
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .cal-month-label {
+      font-weight: 700;
+      font-size: 15px;
+      text-transform: capitalize;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-grid-labels {
+      margin-bottom: 4px;
+    }
+
+    .cal-day-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      padding: 4px 0;
+    }
+
+    .cal-cell {
+      aspect-ratio: 1;
+      min-height: 44px;
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .cal-cell:hover {
+      border-color: var(--green);
+    }
+
+    .cal-cell.cal-empty {
+      background: transparent;
+      border: none;
+      cursor: default;
+    }
+
+    .cal-cell.cal-today {
+      border: 2px solid var(--green);
+      background: var(--green-pale);
+    }
+
+    .cal-day-num {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .cal-summary {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .cal-dot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 8px;
+      height: 8px;
+      padding: 0 3px;
+      border-radius: 6px;
+      font-size: 9px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 8px;
+    }
+
+    .cal-dot-green {
+      background: var(--green);
+    }
+
+    .cal-dot-amber {
+      background: var(--amber);
+    }
+
+    .cal-dot-red {
+      background: var(--red);
+    }
+
+    .cal-detail {
+      margin-top: 14px;
+    }
+
+    .cal-detail-title {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .cal-detail-empty {
+      color: var(--text-3);
+      font-size: 13px;
+      padding: 8px 0;
+    }
+
+    .cal-detail-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -1862,6 +1988,10 @@
         <div id="registerFormContainer" style="display: none;">
           <div class="login-form-title" style="font-size: 22px; margin-bottom: 4px;">Inscription</div>
           <div class="login-form-subtitle" style="margin-bottom: 20px;">Créez votre compte PointagePro</div>
+          <div id="bootstrapRhBanner" style="display:none; background:var(--amber-light); border:1px solid var(--amber); border-radius:var(--radius); padding:12px 14px; margin-bottom:16px; font-size:13px;">
+            <i class="fas fa-user-shield" style="color:var(--amber)"></i>
+            Aucun compte RH n'existe encore : ce premier compte créé deviendra automatiquement le <strong>Responsable RH</strong> de l'entreprise.
+          </div>
           <div class="login-form-fields" style="display: flex; flex-direction: column; gap: 14px;">
             <div class="form-group">
               <label class="form-label">Nom complet</label>
@@ -1883,19 +2013,9 @@
               <label class="form-label">Téléphone</label>
               <input class="form-input" id="regTel" type="text" placeholder="Ex: +261 34 00 000 00">
             </div>
-            <div class="form-group">
-              <label class="form-label">Rôle</label>
-              <div style="display: flex; gap: 16px; margin-top: 4px;">
-                <label
-                  style="display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; cursor: pointer;">
-                  <input type="radio" name="regRole" value="employe" checked style="accent-color: var(--green);">
-                  Employé
-                </label>
-                <label
-                  style="display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; cursor: pointer;">
-                  <input type="radio" name="regRole" value="manager" style="accent-color: var(--green);"> Employeur / RH
-                </label>
-              </div>
+            <div class="form-group" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--text-2);display:flex;align-items:center;gap:8px;">
+              <i class="fas fa-shield-alt" style="color:var(--green)"></i>
+              Ce formulaire crée uniquement un compte <strong>Employé</strong>. Les comptes RH sont créés exclusivement par un Manager RH déjà authentifié, avec vérification par email.
             </div>
             <button class="btn btn-primary btn-block btn-lg" onclick="doRegister()" style="margin-top: 8px;">
               <i class="fas fa-user-plus"></i> S'inscrire
@@ -1903,6 +2023,66 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MODALE : QR PERSONNEL EMPLOYÉ (première connexion) ─── -->
+  <div id="myQrModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
+    <div class="card" style="width:100%;max-width:380px;margin:16px;">
+      <div class="card-body" style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:14px; padding:24px;">
+        <div style="width:52px;height:52px;background:var(--green-light);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--green-dark)">
+          <i class="fas fa-id-badge"></i>
+        </div>
+        <div style="font-weight:700;font-size:16px;">Votre QR Code personnel</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.5;">
+          Ce QR Code vous est propre et permanent. Téléchargez-le et conservez-le : il vous servira à pointer votre présence (par scan caméra RH ou par upload) toute votre vie dans l'entreprise.
+        </div>
+        <div id="myQrContainer" style="padding:16px;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-lg);display:inline-block;"></div>
+        <div style="display:flex;gap:12px;width:100%;">
+          <button class="btn btn-primary btn-block" onclick="telechargerMonQRCode()">
+            <i class="fas fa-download"></i> Télécharger mon QR
+          </button>
+        </div>
+        <button class="btn btn-outline btn-block" onclick="document.getElementById('myQrModal').style.display='none'; switchLoginTab('login');">
+          J'ai téléchargé mon QR — Continuer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MODALE : CRÉATION SÉCURISÉE D'UN COMPTE RH ─── -->
+  <div id="createRhModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
+    <div class="card" style="width:100%;max-width:420px;margin:16px;max-height:90vh;overflow:auto;">
+      <div class="card-body" style="padding:24px;">
+        <div style="font-weight:700;font-size:17px;margin-bottom:4px;"><i class="fas fa-user-shield" style="color:var(--green);margin-right:6px"></i>Créer un compte RH</div>
+        <div style="font-size:12px;color:var(--text-2);margin-bottom:16px;">Accès réservé aux Managers RH. Une vérification par email à 8 chiffres est obligatoire.</div>
+
+        <div id="rhStep1">
+          <div class="form-group"><label class="form-label">Nom complet</label><input class="form-input" id="rhName" type="text"></div>
+          <div class="form-group"><label class="form-label">Email professionnel</label><input class="form-input" id="rhEmail" type="text"></div>
+          <div class="form-group"><label class="form-label">Mot de passe</label><input class="form-input" id="rhPass" type="password"></div>
+          <div class="form-group"><label class="form-label">Poste</label><input class="form-input" id="rhPoste" type="text" placeholder="Ex: Responsable RH"></div>
+          <button class="btn btn-primary btn-block" style="margin-top:8px" onclick="envoyerCodeVerificationRH()">
+            <i class="fas fa-paper-plane"></i> Envoyer le code de vérification
+          </button>
+        </div>
+
+        <div id="rhStep2" style="display:none">
+          <div id="rhCodeDemoBox" style="background:var(--bg);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--text-2);margin-bottom:14px;"></div>
+          <div class="form-group">
+            <label class="form-label">Code de vérification (8 chiffres)</label>
+            <input class="form-input" id="rhCodeInput" type="text" maxlength="8" placeholder="00000000" style="letter-spacing:4px;font-family:var(--font-mono);text-align:center;font-size:18px;">
+          </div>
+          <button class="btn btn-primary btn-block" onclick="verifierCodeEtCreerRH()">
+            <i class="fas fa-check-circle"></i> Vérifier et créer le compte RH
+          </button>
+          <button class="btn btn-outline btn-block" style="margin-top:8px" onclick="document.getElementById('rhStep1').style.display='block';document.getElementById('rhStep2').style.display='none';">
+            <i class="fas fa-arrow-left"></i> Retour
+          </button>
+        </div>
+
+        <button class="btn btn-outline btn-block" style="margin-top:14px" onclick="document.getElementById('createRhModal').style.display='none';">Fermer</button>
       </div>
     </div>
   </div>
@@ -2016,7 +2196,7 @@
             <div class="stat-card">
               <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
               <div class="stat-value" id="countPresent">0</div>
-              <div class="stat-label">Présent ce mois</div>
+              <div class="stat-label">Présent en <span id="statMonthName">ce mois</span></div>
             </div>
             <div class="stat-card">
               <div class="stat-icon amber"><i class="fas fa-clock"></i></div>
@@ -2075,8 +2255,14 @@
       </div>
 
       <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;margin-top:16px;">
-        <button class="btn btn-outline btn-block" onclick="simulateScanOffline()">
-          <i class="fas fa-wifi-slash"></i> Simuler mode Hors-ligne (Demo)
+        <div style="font-size:12px;color:var(--text-2);text-align:center;">Pas de caméra qui fonctionne ? Uploadez votre QR personnel :</div>
+        <input type="file" id="qrUploadInput" accept="image/*" style="display:none" onchange="handleQrFileUpload(this, false)">
+        <button class="btn btn-outline btn-block" onclick="document.getElementById('qrUploadInput').click()">
+          <i class="fas fa-upload"></i> Uploader mon QR (pointage normal)
+        </button>
+        <input type="file" id="qrUploadInputOffline" accept="image/*" style="display:none" onchange="handleQrFileUpload(this, true)">
+        <button class="btn btn-outline btn-block" onclick="document.getElementById('qrUploadInputOffline').click()">
+          <i class="fas fa-wifi-slash"></i> Pointer votre présence hors-ligne
         </button>
       </div>
 
@@ -2111,9 +2297,7 @@
 
           <div class="filter-bar">
             <select class="month-select" id="monthFilter" onchange="renderHistory()">
-              <option value="2026-05">Mai 2026</option>
-              <option value="2026-04">Avril 2026</option>
-              <option value="2026-03">Mars 2026</option>
+              <!-- Options générées dynamiquement par populateMonthFilter() selon le mois en cours -->
             </select>
             <div class="filter-tabs">
               <div class="filter-tab active" onclick="setHistFilter('Tous',this)">Tous</div>
@@ -2141,6 +2325,9 @@
             <div class="page-subtitle">Vue d'ensemble des présences — <span id="currentMonthYear">Mai 2026</span></div>
           </div>
           <div class="page-actions" style="display:flex; gap:8px;">
+            <button id="pointageProToggleBtn" class="btn btn-primary btn-sm" onclick="togglePointagePro()">
+              <i class="fas fa-toggle-on"></i> PointagePro : ACTIVÉ
+            </button>
             <button id="btn-rafraichir" class="btn btn-outline btn-sm" onclick="chargerTableauDeBord()">
               <i class="fas fa-sync-alt"></i> Actualiser
             </button>
@@ -2169,11 +2356,8 @@
                   Aucun jeton généré
                 </div>
                 <div style="display:flex; gap:12px; width:100%; max-width:320px; margin-top:8px;">
-                  <button class="btn btn-primary" onclick="genererCodePointage()" style="flex:1;">
+                  <button class="btn btn-primary btn-block" onclick="genererCodePointage()">
                     <i class="fas fa-sync-alt"></i> Actualiser le QR
-                  </button>
-                  <button class="btn btn-outline" onclick="telechargerQRCode()" title="Télécharger le QR Code" style="padding:10px 14px;">
-                    <i class="fas fa-download"></i> Télécharger
                   </button>
                 </div>
               </div>
@@ -2207,9 +2391,52 @@
             <button class="tab-btn active" onclick="switchTab('tab-employes',this)">Employés</button>
             <button class="tab-btn" onclick="switchTab('tab-pointages',this)">Pointages du jour</button>
             <button class="tab-btn" onclick="switchTab('tab-stats',this)">Statistiques</button>
+            <button class="tab-btn" onclick="switchTab('tab-qr-gallery',this); renderQrGallery();">QR Employés</button>
+            <button class="tab-btn" onclick="switchTab('tab-hors-ligne',this); renderOfflineSectionRH();">Hors-ligne</button>
+            <button class="tab-btn" onclick="switchTab('tab-calendrier',this); renderCalendar('calendarWidgetRH', new Date(), null);">Calendrier</button>
+            <button class="tab-btn" onclick="switchTab('tab-comptes-rh',this); renderRhAccountsList();">Comptes RH</button>
+          </div>
+
+          <div class="tab-panel" id="tab-comptes-rh">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h3 style="font-size:16px;font-weight:700;">Comptes RH</h3>
+              <button class="btn btn-primary btn-sm" onclick="ouvrirCreationRH()"><i class="fas fa-user-plus"></i> Créer un compte RH</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Nom</th><th>Email</th><th>Poste</th><th>Statut</th></tr></thead>
+                <tbody id="rhAccountsTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="tab-qr-gallery">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">QR Codes de chaque employé</h3>
+            <div id="qrGalleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;"></div>
+          </div>
+
+          <div class="tab-panel" id="tab-hors-ligne">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">Pointages hors-ligne en attente de synchronisation</h3>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Employé</th><th>Date</th><th>Heure</th><th>Méthode</th></tr></thead>
+                <tbody id="offlineTableRH"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="tab-calendrier">
+            <h3 style="font-size:16px;font-weight:700;margin-bottom:4px;">Calendrier de présence — tous les employés</h3>
+            <p style="font-size:13px;color:var(--text-2);margin-bottom:12px;">Chaque jour affiche le nombre de présents, retards et absents pour l'ensemble des employés. Cliquez sur un jour pour voir le détail nominatif.</p>
+            <div id="calendarWidgetRH"></div>
           </div>
 
           <div class="tab-panel active" id="tab-employes">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+              <button class="btn btn-outline btn-sm" onclick="renderManagerTable(); updateManagerStats();">
+                <i class="fas fa-sync-alt"></i> Actualiser la liste
+              </button>
+            </div>
             <div class="table-wrapper">
               <table>
                 <thead>
@@ -2221,6 +2448,7 @@
                     <th>Absences</th>
                     <th>Taux</th>
                     <th>Statut</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody id="managerTable"></tbody>
@@ -2240,7 +2468,9 @@
                 <thead>
                   <tr>
                     <th>Employé</th>
+                    <th>Date</th>
                     <th>Heure</th>
+                    <th>Méthode</th>
                     <th>GPS</th>
                     <th>Réseau</th>
                     <th>Statut</th>
@@ -2279,7 +2509,7 @@
       <!-- ─── PROFIL ─── -->
       <div class="page" id="page-profil">
         <div class="page-header">
-          <div class="page-title">Mon Profil</div>
+          <div class="page-title" id="profilePageTitle">Mon Profil</div>
         </div>
         <div class="page-body" style="max-width:560px">
           <div class="profile-hero">
@@ -2299,15 +2529,15 @@
           <div class="stat-grid" style="margin-bottom:16px">
             <div class="stat-card">
               <div class="stat-value" style="color:var(--green)" id="profileTaux">—</div>
-              <div class="stat-label">Taux présence</div>
+              <div class="stat-label" id="profileTauxLabel">Taux présence</div>
             </div>
             <div class="stat-card">
               <div class="stat-value" style="color:var(--amber)" id="profileRetards">0</div>
-              <div class="stat-label">Retards</div>
+              <div class="stat-label" id="profileRetardsLabel">Retards</div>
             </div>
             <div class="stat-card">
               <div class="stat-value" id="profileTotal">0</div>
-              <div class="stat-label">Ce mois</div>
+              <div class="stat-label" id="profileTotalLabel">Ce mois</div>
             </div>
           </div>
 
@@ -2325,6 +2555,34 @@
               <div class="info-row"><span class="info-key">Téléphone</span><span class="info-val" id="pTel">Non
                   renseigné</span></div>
               <div class="info-row"><span class="info-key">Email</span><span class="info-val" id="pEmail">—</span></div>
+            </div>
+          </div>
+
+          <!-- Bloc visible UNIQUEMENT côté employé : son propre calendrier personnel -->
+          <div class="info-section" style="margin-bottom:16px" id="profileCalendarSection">
+            <div class="info-header"><i class="fas fa-calendar-alt" style="color:var(--green)"></i> &nbsp;Mon calendrier de présence</div>
+            <div id="calendarWidgetEmploye" style="padding:16px 20px"></div>
+          </div>
+
+          <!-- Bloc visible UNIQUEMENT côté RH : supervision et contrôle des employés -->
+          <div class="info-section" style="margin-bottom:16px;display:none;border-color:var(--green)" id="profileRhPanel">
+            <div class="info-header"><i class="fas fa-user-shield" style="color:var(--green)"></i> &nbsp;Supervision RH</div>
+            <div style="padding:16px 20px">
+              <p style="font-size:13px;color:var(--text-2);margin-bottom:14px">
+                En tant que Manager RH, vous avez accès à l'ensemble des comptes employés et de leur historique de
+                présence — les employés, eux, ne voient jamais que leurs propres données.
+              </p>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <button class="btn btn-primary btn-sm" onclick="navigate('manager')">
+                  <i class="fas fa-tachometer-alt"></i> Aller au tableau de bord RH
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="navigate('manager'); setTimeout(() => switchTab('tab-employes', document.querySelector('#page-manager .tab-btn')), 0);">
+                  <i class="fas fa-users"></i> Gérer les comptes employés
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="navigate('manager'); setTimeout(() => { const btn = [...document.querySelectorAll('#page-manager .tab-btn')].find(b => b.textContent.includes('Calendrier')); if (btn) { switchTab('tab-calendrier', btn); renderCalendar('calendarWidgetRH', new Date(), null); } }, 0);">
+                  <i class="fas fa-calendar-alt"></i> Voir le calendrier de tous les employés
+                </button>
+              </div>
             </div>
           </div>
 
@@ -2389,6 +2647,30 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
+    // ─── RÉINITIALISATION UNIQUE DES DONNÉES (comptes + historique) ────────
+    // Demandé le 05/08/2026 : repartir de zéro avec les nouvelles
+    // fonctionnalités, en supprimant tous les comptes de test et leur
+    // historique de pointage. Ce bloc ne s'exécute qu'UNE SEULE FOIS par
+    // appareil/navigateur (protégé par le marqueur POINTAGEPRO_RESET_V2_DONE) :
+    // au premier chargement de cette version du fichier, il efface les
+    // anciennes données locales, puis pose le marqueur pour ne plus jamais
+    // re-effacer quoi que ce soit ensuite — les comptes et pointages créés
+    // après cette mise à jour resteront bien conservés normalement.
+    (function resetAllDataOnce() {
+      const RESET_FLAG = 'POINTAGEPRO_RESET_V2_DONE';
+      if (localStorage.getItem(RESET_FLAG)) return;
+      [
+        'POINTAGEPRO_USERS',
+        'POINTAGEPRO_POINTAGES',
+        'POINTAGEPRO_PENDING',
+        'POINTAGEPRO_LAST_AUTO_ABSENCE_CHECK',
+        'POINTAGEPRO_ACTIVE'
+      ].forEach(k => localStorage.removeItem(k));
+      try { sessionStorage.removeItem('POINTAGEPRO_CURRENT_USER'); } catch (e) {}
+      localStorage.setItem(RESET_FLAG, 'true');
+      console.log('[Reset] Anciens comptes et historique effacés — nouveau départ.');
+    })();
+
     // ─── DATA ───────────────────────────────────────────────────────
     let USERS_DATABASE = JSON.parse(localStorage.getItem('POINTAGEPRO_USERS')) || [];
     let EMPLOYEES = USERS_DATABASE;
@@ -2405,6 +2687,68 @@
     let darkMode = document.documentElement.getAttribute('data-theme') === 'dark';
     let qrInstance = null;
     let html5QrCode = null;
+    let _qrFileScanner = null;
+
+    // ─── SYNCHRONISATION MULTI-ONGLETS / MULTI-SESSIONS ────────────────
+    // USERS_DATABASE (et son alias EMPLOYEES) ainsi que ALL_POINTAGES ne sont
+    // lus depuis localStorage QU'UNE SEULE FOIS, au chargement de la page.
+    // Si un compte employé est créé (ou un pointage enregistré) dans un autre
+    // onglet/une autre fenêtre du même navigateur, cette page ne le "voit"
+    // jamais tant qu'elle n'est pas rechargée manuellement — c'était la cause
+    // du bug "le RH ne voit qu'un seul employé". Ces fonctions relisent
+    // localStorage et fusionnent le résultat DANS les tableaux existants
+    // (sans jamais les réassigner) pour ne jamais casser l'alias
+    // EMPLOYEES = USERS_DATABASE.
+    function syncEmployeesFromStorage() {
+      try {
+        const fresh = JSON.parse(localStorage.getItem('POINTAGEPRO_USERS')) || [];
+        USERS_DATABASE.length = 0;
+        fresh.forEach(u => USERS_DATABASE.push(u));
+      } catch (e) {
+        console.warn('[Sync] Impossible de relire POINTAGEPRO_USERS', e);
+      }
+    }
+
+    function syncPointagesFromStorage() {
+      try {
+        const fresh = JSON.parse(localStorage.getItem('POINTAGEPRO_POINTAGES')) || [];
+        ALL_POINTAGES.length = 0;
+        fresh.forEach(p => ALL_POINTAGES.push(p));
+        if (currentUser) {
+          myPointages = ALL_POINTAGES.filter(p => p.employeeId === currentUser.id);
+        }
+      } catch (e) {
+        console.warn('[Sync] Impossible de relire POINTAGEPRO_POINTAGES', e);
+      }
+    }
+
+    // Se déclenche quand un AUTRE onglet/fenêtre modifie le localStorage
+    // (ex. un employé s'inscrit ou pointe pendant que le RH a son tableau de
+    // bord ouvert ailleurs) : on resynchronise et on rafraîchit l'affichage.
+    window.addEventListener('storage', (evt) => {
+      if (!currentUser) return;
+      if (evt.key === 'POINTAGEPRO_USERS') {
+        syncEmployeesFromStorage();
+        if (currentUser.role === 'manager') { renderManagerTable(); updateManagerStats(); }
+      }
+      if (evt.key === 'POINTAGEPRO_POINTAGES') {
+        syncPointagesFromStorage();
+        if (currentUser.role === 'manager') { renderManagerTable(); renderTodayTable(); updateManagerStats(); }
+        else { updateStats(); }
+      }
+    });
+
+    // Filet de sécurité supplémentaire : quand l'app redevient visible
+    // (changement d'onglet, réveil de l'appareil, retour au premier plan),
+    // on resynchronise aussi — utile quand l'évènement 'storage' n'a pas pu
+    // se déclencher (ex. onglet resté en arrière-plan longtemps).
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible' || !currentUser) return;
+      syncEmployeesFromStorage();
+      syncPointagesFromStorage();
+      if (currentUser.role === 'manager') { renderManagerTable(); updateManagerStats(); renderTodayTable(); }
+      else { updateStats(); }
+    });
 
     // ─── QR CODE GENERATOR ──────────────────────────────────────────
     /**
@@ -2525,7 +2869,307 @@
       }
     }
 
-    // ─── LOGIN & REGISTER ───────────────────────────────────────────
+    // ─── SÉCURITÉ : CRÉATION D'UN COMPTE RH (réservé aux RH connectés) ──
+    let _rhPendingCode = null;
+    let _rhPendingData = null;
+    let _rhCodeExpiry = null;
+    let _autoAbsenceInterval = null;
+
+    function ouvrirCreationRH() {
+      if (!currentUser || currentUser.role !== 'manager') {
+        showToast('Accès refusé', 'Seul un compte RH peut créer un autre compte RH', 'red', 'fa-ban');
+        return;
+      }
+      document.getElementById('rhStep1').style.display = 'block';
+      document.getElementById('rhStep2').style.display = 'none';
+      document.getElementById('rhName').value = '';
+      document.getElementById('rhEmail').value = '';
+      document.getElementById('rhPass').value = '';
+      document.getElementById('rhPoste').value = '';
+      document.getElementById('createRhModal').style.display = 'flex';
+    }
+
+    function envoyerCodeVerificationRH() {
+      const name = document.getElementById('rhName').value.trim();
+      const email = document.getElementById('rhEmail').value.trim();
+      const pass = document.getElementById('rhPass').value.trim();
+      const poste = document.getElementById('rhPoste').value.trim();
+
+      if (!name || !email || !pass) {
+        showToast('Erreur', 'Nom, email et mot de passe sont requis', 'red', 'fa-exclamation-triangle');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showToast('Erreur', 'Adresse email invalide', 'red', 'fa-exclamation-triangle');
+        return;
+      }
+      const id = email.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (USERS_DATABASE.some(u => u.email.toLowerCase() === email.toLowerCase() || u.id === id)) {
+        showToast('Erreur', 'Cet identifiant ou email est déjà utilisé', 'red', 'fa-exclamation-triangle');
+        return;
+      }
+
+      _rhPendingCode = String(Math.floor(10000000 + Math.random() * 90000000)); // code à 8 chiffres
+      _rhPendingData = { name, email, pass, poste, id };
+      _rhCodeExpiry = Date.now() + 5 * 60 * 1000; // valide 5 minutes
+
+      // ⚠️ Pas de backend d'email connecté dans cette app front-end : on affiche le code
+      // ici pour la démo. En production, cet appel serait remplacé par une requête vers
+      // un service d'envoi d'email (ex: Resend, SendGrid) depuis un serveur.
+      document.getElementById('rhCodeDemoBox').innerHTML =
+        `<i class="fas fa-info-circle"></i> Mode démo (aucun serveur email connecté) — code envoyé à <strong>${email}</strong> :<br>
+         <span style="font-family:var(--font-mono);font-size:16px;letter-spacing:3px;color:var(--green)">${_rhPendingCode}</span>
+         <br><small>Expire dans 5 minutes.</small>`;
+
+      document.getElementById('rhStep1').style.display = 'none';
+      document.getElementById('rhStep2').style.display = 'block';
+      document.getElementById('rhCodeInput').value = '';
+      showToast('Code envoyé', `Code de vérification envoyé à ${email}`, 'green', 'fa-paper-plane');
+    }
+
+    function verifierCodeEtCreerRH() {
+      const inputCode = document.getElementById('rhCodeInput').value.trim();
+
+      if (!_rhPendingCode || !_rhPendingData) {
+        showToast('Erreur', 'Aucune demande de code en cours', 'red', 'fa-exclamation-triangle');
+        return;
+      }
+      if (Date.now() > _rhCodeExpiry) {
+        showToast('Code expiré', 'Le code a expiré, veuillez recommencer', 'red', 'fa-clock');
+        _rhPendingCode = null;
+        _rhPendingData = null;
+        return;
+      }
+      if (inputCode.length !== 8 || inputCode !== _rhPendingCode) {
+        showToast('Code incorrect', 'Le code saisi ne correspond pas — création impossible', 'red', 'fa-times-circle');
+        return;
+      }
+
+      const d = _rhPendingData;
+      const user = {
+        id: d.id,
+        name: d.name,
+        email: d.email,
+        password: d.pass,
+        role: 'manager',
+        poste: d.poste || 'Responsable RH',
+        tel: 'Non renseigné',
+        matricule: `MGR-${Math.floor(1000 + Math.random() * 9000)}`,
+        photo: null,
+        loginCount: 0,
+        actif: true
+      };
+      USERS_DATABASE.push(user);
+      localStorage.setItem('POINTAGEPRO_USERS', JSON.stringify(USERS_DATABASE));
+
+      _rhPendingCode = null;
+      _rhPendingData = null;
+      document.getElementById('createRhModal').style.display = 'none';
+      showToast('Compte RH créé', `${user.name} peut maintenant se connecter en tant que Manager RH`, 'green', 'fa-user-shield');
+      renderRhAccountsList();
+    }
+
+    // ─── QR PERSONNEL EMPLOYÉ ───────────────────────────────────────
+    function telechargerMonQRCode() {
+      const container = document.getElementById('myQrContainer');
+      if (!container) return;
+      const img = container.querySelector('img');
+      const canvas = container.querySelector('canvas');
+      let dataUrl = '';
+      if (img && img.src && img.src.startsWith('data:image')) dataUrl = img.src;
+      else if (canvas) { try { dataUrl = canvas.toDataURL('image/png'); } catch (e) {} }
+
+      if (dataUrl) {
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `mon_qrcode_personnel.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast('Téléchargement', 'Votre QR Code personnel a été enregistré', 'green', 'fa-file-image');
+      } else {
+        showToast('Erreur', 'QR Code introuvable', 'red', 'fa-exclamation-triangle');
+      }
+    }
+
+    function renderRhAccountsList() {
+      const el = document.getElementById('rhAccountsTable');
+      if (!el) return;
+      const rhs = USERS_DATABASE.filter(u => u.role === 'manager');
+      el.innerHTML = rhs.map(u => `<tr>
+        <td>${u.name}</td><td>${u.email}</td><td>${u.poste || ''}</td>
+        <td><span class="badge ${u.actif !== false ? 'badge-green' : 'badge-red'}">${u.actif !== false ? 'Actif' : 'Désactivé'}</span></td>
+      </tr>`).join('') || `<tr><td colspan="4" style="text-align:center;color:var(--text-3);padding:16px;">Aucun autre compte RH</td></tr>`;
+    }
+
+    // ─── GALERIE QR EMPLOYÉS (vue RH) ───────────────────────────────
+    function renderQrGallery() {
+      const el = document.getElementById('qrGalleryGrid');
+      if (!el) return;
+      const employeesOnly = EMPLOYEES.filter(e => e.role === 'employe');
+
+      if (employeesOnly.length === 0) {
+        el.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-3);padding:16px;">Aucun employé enregistré</div>`;
+        return;
+      }
+
+      el.innerHTML = employeesOnly.map(emp => {
+        const initials = emp.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        const containerId = `qrgal-${emp.id}`;
+        const avatarHtml = emp.photo
+          ? `<img src="${emp.photo}" alt="${initials}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">`
+          : `<div class="td-avatar" style="margin:0 auto">${initials}</div>`;
+        return `
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;">
+        ${avatarHtml}
+        <div style="font-weight:700;font-size:13px;margin-top:8px;">${emp.name}</div>
+        <div style="font-size:11px;color:var(--text-2);margin-bottom:8px;">${emp.matricule || ''}</div>
+        <div id="${containerId}" style="display:flex;justify-content:center;margin-bottom:8px;"></div>
+        <button class="btn btn-outline btn-sm" style="width:100%" onclick="telechargerQrGalleryItem('${containerId}', '${emp.name.replace(/'/g, "")}')">
+          <i class="fas fa-download"></i> Télécharger
+        </button>
+      </div>`;
+      }).join('');
+
+      // Générer chaque QR après insertion dans le DOM (le conteneur doit exister)
+      employeesOnly.forEach(emp => {
+        const token = emp.qrToken || emp.id;
+        afficherQRCodeEmploye(token, `qrgal-${emp.id}`);
+      });
+    }
+
+    function telechargerQrGalleryItem(containerId, employeeName) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const img = container.querySelector('img');
+      const canvas = container.querySelector('canvas');
+      let dataUrl = '';
+      if (img && img.src && img.src.startsWith('data:image')) dataUrl = img.src;
+      else if (canvas) { try { dataUrl = canvas.toDataURL('image/png'); } catch (e) {} }
+
+      if (!dataUrl) {
+        showToast('Erreur', 'QR Code introuvable', 'red', 'fa-exclamation-triangle');
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `qrcode_${employeeName.replace(/\s+/g, '_')}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function renderOfflineSectionRH() {
+      const el = document.getElementById('offlineTableRH');
+      if (!el) return;
+      if (pendingPointages.length === 0) {
+        el.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-3);padding:16px;">Aucun pointage hors-ligne en attente</td></tr>`;
+        return;
+      }
+      el.innerHTML = pendingPointages.map(p => `<tr>
+        <td>${p.employeeName}</td><td>${p.date}</td><td>${p.time}</td><td>${p.method || 'hors-ligne'}</td>
+      </tr>`).join('');
+    }
+
+    // ─── CALENDRIER INTELLIGENT (RH : tous les employés / Employé : soi-même) ───
+    let _calendarRefDate = {};
+
+    function renderCalendar(containerId, refDate) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+
+      refDate = refDate || _calendarRefDate[containerId] || new Date();
+      _calendarRefDate[containerId] = refDate;
+
+      const year = refDate.getFullYear();
+      const month = refDate.getMonth();
+      const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      const dayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+
+      const firstOfMonth = new Date(year, month, 1);
+      const startDay = (firstOfMonth.getDay() + 6) % 7; // 0 = Lundi
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      const today = new Date();
+      const todayStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+
+      const isRhView = containerId === 'calendarWidgetRH';
+      const dataSource = isRhView ? ALL_POINTAGES : myPointages;
+
+      const byDate = {};
+      dataSource.forEach(p => {
+        if (!byDate[p.date]) byDate[p.date] = [];
+        byDate[p.date].push(p);
+      });
+
+      let cells = '';
+      for (let i = 0; i < startDay; i++) cells += `<div class="cal-cell cal-empty"></div>`;
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${String(d).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}/${year}`;
+        const dayPointages = byDate[dateStr] || [];
+        const isToday = dateStr === todayStr;
+
+        let indicator = '';
+        if (isRhView) {
+          const present = dayPointages.filter(p => p.status === 'Présent').length;
+          const retard = dayPointages.filter(p => p.status === 'Retard').length;
+          const absent = dayPointages.filter(p => p.status === 'Absent').length;
+          if (dayPointages.length > 0) {
+            indicator = `<div class="cal-summary">
+              ${present ? `<span class="cal-dot cal-dot-green">${present}</span>` : ''}
+              ${retard ? `<span class="cal-dot cal-dot-amber">${retard}</span>` : ''}
+              ${absent ? `<span class="cal-dot cal-dot-red">${absent}</span>` : ''}
+            </div>`;
+          }
+        } else if (dayPointages.length > 0) {
+          const st = dayPointages[0].status;
+          const cls = st === 'Présent' ? 'cal-dot-green' : st === 'Retard' ? 'cal-dot-amber' : 'cal-dot-red';
+          indicator = `<div class="cal-summary"><span class="cal-dot ${cls}"></span></div>`;
+        }
+
+        cells += `<div class="cal-cell ${isToday ? 'cal-today' : ''}" onclick="handleCalendarDayClick('${containerId}','${dateStr}')">
+          <div class="cal-day-num">${d}</div>${indicator}
+        </div>`;
+      }
+
+      el.innerHTML = `
+        <div class="cal-header">
+          <button class="btn btn-outline btn-sm" onclick="navigateCalendar('${containerId}', -1)"><i class="fas fa-chevron-left"></i></button>
+          <div class="cal-month-label">${monthNames[month]} ${year}</div>
+          <button class="btn btn-outline btn-sm" onclick="navigateCalendar('${containerId}', 1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="cal-grid cal-grid-labels">${dayLabels.map(d => `<div class="cal-day-label">${d}</div>`).join('')}</div>
+        <div class="cal-grid">${cells}</div>
+        <div id="calDetail-${containerId}" class="cal-detail"></div>`;
+    }
+
+    function navigateCalendar(containerId, delta) {
+      const cur = _calendarRefDate[containerId] || new Date();
+      renderCalendar(containerId, new Date(cur.getFullYear(), cur.getMonth() + delta, 1));
+    }
+
+    function handleCalendarDayClick(containerId, dateStr) {
+      const isRhView = containerId === 'calendarWidgetRH';
+      const dataSource = isRhView ? ALL_POINTAGES : myPointages;
+      const dayPointages = dataSource.filter(p => p.date === dateStr);
+      const detailEl = document.getElementById(`calDetail-${containerId}`);
+      if (!detailEl) return;
+
+      if (dayPointages.length === 0) {
+        detailEl.innerHTML = `<div class="cal-detail-empty">Aucun pointage le ${dateStr}</div>`;
+        return;
+      }
+
+      detailEl.innerHTML = `
+        <div class="cal-detail-title">Pointages du ${dateStr}</div>
+        ${dayPointages.map(p => `
+          <div class="cal-detail-row">
+            <span>${isRhView ? `${p.employeeName || p.employee || '—'} — ` : ''}${p.time}${p.method ? ` <span style="color:var(--text-3)">(${p.method})</span>` : ''}</span>
+            <span class="badge ${p.status === 'Présent' ? 'badge-green' : p.status === 'Retard' ? 'badge-amber' : 'badge-red'}">${p.status}${p.lateMinutes ? ` +${p.lateMinutes}min` : ''}</span>
+          </div>`).join('')}`;
+    }
+
     function switchLoginTab(tab) {
       const tabLoginBtn = document.getElementById('tabLoginBtn');
       const tabRegisterBtn = document.getElementById('tabRegisterBtn');
@@ -2542,6 +3186,11 @@
         tabRegisterBtn.classList.add('active');
         loginFormContainer.style.display = 'none';
         registerFormContainer.style.display = 'block';
+        const banner = document.getElementById('bootstrapRhBanner');
+        if (banner) {
+          const hasAnyManager = USERS_DATABASE.some(u => u.role === 'manager');
+          banner.style.display = hasAnyManager ? 'none' : 'block';
+        }
       }
     }
 
@@ -2551,8 +3200,15 @@
       const pass = document.getElementById('regPass').value.trim();
       const poste = document.getElementById('regPoste').value.trim();
       const tel = document.getElementById('regTel').value.trim();
-      const roleEl = document.querySelector('input[name="regRole"]:checked');
-      const role = roleEl ? roleEl.value : 'employe';
+
+      // Sécurité : l'inscription publique ne peut créer que des comptes Employé —
+      // SAUF s'il n'existe encore AUCUN compte RH dans toute la base (première
+      // installation). Dans ce cas précis, le tout premier compte créé devient
+      // automatiquement le compte RH, sinon il serait impossible d'en créer un
+      // seul : la création RH normale exige déjà d'être connecté en tant que RH.
+      const hasAnyManager = USERS_DATABASE.some(u => u.role === 'manager');
+      const isBootstrap = !hasAnyManager;
+      const role = isBootstrap ? 'manager' : 'employe';
 
       if (!name || !email || !pass) {
         showToast('Erreur', 'Veuillez remplir les champs requis (Nom, Identifiant/Email, Mot de passe)', 'red', 'fa-exclamation-triangle');
@@ -2569,7 +3225,7 @@
       }
 
       const randNum = Math.floor(1000 + Math.random() * 9000);
-      const matricule = role === 'manager' ? `MGR-${randNum}` : `EMP-${randNum}`;
+      const matricule = isBootstrap ? `MGR-${randNum}` : `EMP-${randNum}`;
 
       const user = {
         id: id,
@@ -2577,17 +3233,17 @@
         email: email,
         password: pass,
         role: role,
-        poste: poste || (role === 'manager' ? 'Responsable RH' : 'Technicien'),
+        poste: poste || (isBootstrap ? 'Responsable RH' : 'Technicien'),
         tel: tel || 'Non renseigné',
         matricule: matricule,
         photo: null,
-        loginCount: 0
+        loginCount: 0,
+        actif: true,
+        qrToken: `EMPQR_${id}_${Date.now()}` // jeton QR personnel, permanent (utile même pour un RH qui redeviendrait employé un jour)
       };
 
       USERS_DATABASE.push(user);
       localStorage.setItem('POINTAGEPRO_USERS', JSON.stringify(USERS_DATABASE));
-
-      showToast('Succès', 'Compte créé avec succès ! Connectez-vous.', 'green', 'fa-user-check');
 
       // Clear registration fields
       document.getElementById('regName').value = '';
@@ -2596,10 +3252,18 @@
       document.getElementById('regPoste').value = '';
       document.getElementById('regTel').value = '';
 
-      // Switch to login tab and pre-fill username
-      switchLoginTab('login');
-      document.getElementById('loginUser').value = email;
-      document.getElementById('loginPass').value = '';
+      if (isBootstrap) {
+        showToast('Compte RH créé', `Bienvenue ${name} ! Premier compte de l'entreprise : vous êtes le Responsable RH.`, 'green', 'fa-user-shield');
+        switchLoginTab('login');
+        document.getElementById('loginUser').value = email;
+        return;
+      }
+
+      // Générer et afficher le QR Code personnel (permanent, à conserver par l'employé)
+      afficherQRCodeEmploye(user.qrToken, 'myQrContainer');
+      document.getElementById('myQrModal').style.display = 'flex';
+
+      showToast('Compte créé', `Bienvenue ${name} ! Voici votre QR Code personnel.`, 'green', 'fa-user-check');
     }
 
     function handleFormLogin() {
@@ -2620,6 +3284,11 @@
 
       if (!user) {
         showToast('Erreur', 'Identifiant ou mot de passe incorrect', 'red', 'fa-exclamation-triangle');
+        return;
+      }
+
+      if (user.actif === false) {
+        showToast('Compte désactivé', 'Votre compte a été désactivé par le service RH. Contactez votre manager.', 'red', 'fa-user-slash');
         return;
       }
 
@@ -2644,7 +3313,7 @@
     function doLoginUser(u) {
       currentUser = u;
       u.loginCount = (u.loginCount || 0) + 1;
-      // Persister la sélection de l'utilisateur courant pour que `app.js` puisse la récupérer
+      // Persister la sélection de l'utilisateur courant (session)
       try {
         sessionStorage.setItem('POINTAGEPRO_CURRENT_USER', u.id);
         localStorage.setItem('POINTAGEPRO_USERS', JSON.stringify(USERS_DATABASE));
@@ -2652,7 +3321,6 @@
       myPointages = ALL_POINTAGES.filter(p => p.employeeId === currentUser.id);
       pendingPointages = JSON.parse(localStorage.getItem('POINTAGEPRO_PENDING')) || [];
 
-      // Mettre à jour currentUser dans app.js (si chargé)
       try {
         if (typeof window !== 'undefined' && window.currentUser !== undefined) {
           window.currentUser = u;
@@ -2669,6 +3337,7 @@
     function doLogout() {
       currentUser = null;
       myPointages = [];
+      if (_autoAbsenceInterval) { clearInterval(_autoAbsenceInterval); _autoAbsenceInterval = null; }
       try { sessionStorage.removeItem('POINTAGEPRO_CURRENT_USER'); } catch (e) {}
       document.getElementById('appRoot').style.display = 'none';
       document.getElementById('loginPage').style.display = 'flex';
@@ -2713,6 +3382,10 @@
       renderTodayTable();
       renderWeekChart();
       updateManagerStats();
+      updatePointageProToggleUI();
+      updateCurrentMonthYearLabel();
+      populateMonthFilter();
+      renderCalendar('calendarWidgetEmploye', new Date());
 
       if (currentUser.role === 'manager') {
         const qrCard = document.getElementById('managerQRCard');
@@ -2724,6 +3397,21 @@
         if (qrCard) qrCard.style.display = 'none';
         navigate('accueil');
       }
+
+      // Vérifie immédiatement (utile si on se connecte après 09h00), puis
+      // toutes les minutes tant qu'une session est active. Un seul minuteur
+      // à la fois même en cas de reconnexion.
+      runAutoAbsenceCheck();
+      if (_autoAbsenceInterval) clearInterval(_autoAbsenceInterval);
+      _autoAbsenceInterval = setInterval(runAutoAbsenceCheck, 60 * 1000);
+    }
+
+    function updateCurrentMonthYearLabel() {
+      const el = document.getElementById('currentMonthYear');
+      if (!el) return;
+      const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      const now = new Date();
+      el.textContent = `${months[now.getMonth()]} ${now.getFullYear()}`;
     }
 
     function initSidebarForRole() {
@@ -2762,17 +3450,29 @@
 
     function updateUserUI() {
       const u = currentUser;
+      const isManager = u.role === 'manager';
       const initials = u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
       renderAvatarInto('sidebarAvatar', u, initials);
       document.getElementById('sidebarName').textContent = u.name;
-      document.getElementById('sidebarRole').textContent = u.role === 'manager' ? 'Manager RH' : 'Employé';
+      document.getElementById('sidebarRole').textContent = isManager ? 'Manager RH' : 'Employé';
       renderAvatarInto('profileAvatarLg', u, initials);
       document.getElementById('profileName').textContent = u.name;
-      document.getElementById('profileRoleBadge').textContent = u.role === 'manager' ? 'Manager RH' : 'Employé';
+      document.getElementById('profileRoleBadge').textContent = isManager ? 'Manager RH' : 'Employé';
       document.getElementById('pEmail').textContent = u.email;
       document.getElementById('pPoste').textContent = u.poste;
       document.getElementById('pMatricule').textContent = u.matricule;
       document.getElementById('pTel').textContent = u.tel;
+
+      // Le profil RH doit être clairement différent du profil employé :
+      // un RH n'a pas de "calendrier personnel" à afficher (il a déjà la vue
+      // globale dans son tableau de bord), mais un vrai panneau de
+      // supervision/contrôle des employés à la place.
+      const titleEl = document.getElementById('profilePageTitle');
+      if (titleEl) titleEl.textContent = isManager ? 'Mon Profil — Espace RH' : 'Mon Profil';
+      const calendarSection = document.getElementById('profileCalendarSection');
+      if (calendarSection) calendarSection.style.display = isManager ? 'none' : '';
+      const rhPanel = document.getElementById('profileRhPanel');
+      if (rhPanel) rhPanel.style.display = isManager ? '' : 'none';
     }
 
     // ─── PHOTO DE PROFIL ────────────────────────────────────────────
@@ -3085,26 +3785,140 @@
       }
     }
 
-    function saveRealPointage(gpsStr, forceOffline = false) {
+    // ─── RÈGLES DE PRÉSENCE ──────────────────────────────────────────
+    // Arrivée <= 07:00 => Présent. Dès 07:01 => Retard (calculé à la minute près).
+    // Absence des 09:00 si aucun pointage n'a été fait (géré par runAutoAbsenceCheck).
+    function computeAttendance(now) {
+      const h = now.getHours(), m = now.getMinutes();
+      const totalMin = h * 60 + m;
+      const cutoff = 7 * 60; // 07:00
+      if (totalMin <= cutoff) return { status: 'Présent', lateMinutes: 0 };
+      return { status: 'Retard', lateMinutes: totalMin - cutoff };
+    }
+
+    // ─── INTERRUPTEUR POINTAGEPRO (RH) ──────────────────────────────
+    function isPointageProActive() {
+      const v = localStorage.getItem('POINTAGEPRO_ACTIVE');
+      return v === null ? true : v === 'true';
+    }
+
+    function togglePointagePro() {
+      const active = !isPointageProActive();
+      localStorage.setItem('POINTAGEPRO_ACTIVE', active ? 'true' : 'false');
+      updatePointageProToggleUI();
+      showToast(
+        active ? 'PointagePro activé' : 'PointagePro désactivé',
+        active ? 'La supervision automatique (retards/absences) est relancée.' : 'Aucune absence automatique ne sera générée tant que c\'est désactivé.',
+        active ? 'green' : 'amber',
+        active ? 'fa-play' : 'fa-pause'
+      );
+      if (active) runAutoAbsenceCheck();
+    }
+
+    function updatePointageProToggleUI() {
+      const btn = document.getElementById('pointageProToggleBtn');
+      if (!btn) return;
+      const active = isPointageProActive();
+      btn.innerHTML = active
+        ? '<i class="fas fa-toggle-on"></i> PointagePro : ACTIVÉ'
+        : '<i class="fas fa-toggle-off"></i> PointagePro : DÉSACTIVÉ';
+      btn.className = active ? 'btn btn-primary btn-sm' : 'btn btn-danger btn-sm';
+    }
+
+    // ─── ABSENCE AUTOMATIQUE (09h00, UNE SEULE FOIS PAR JOUR) ──────────
+    // Cette fonction est relancée toutes les 60 secondes tant qu'une session
+    // est active (voir initApp). Avant, la seule garde était
+    // "if (now.getHours() < 9) return", donc le contrôle continuait de
+    // tourner sans limite haute toute la journée ET le soir — source de
+    // confusion ("pourquoi ça repointe à 9h du soir ?"). On mémorise
+    // maintenant la date du dernier passage pour ne l'exécuter QU'UNE FOIS
+    // par jour, dans la fenêtre 09h00–09h09.
+    function runAutoAbsenceCheck() {
+      if (!isPointageProActive()) return;
       const now = new Date();
+      const todayStr = now.toLocaleDateString('fr-FR');
+
+      const lastCheck = localStorage.getItem('POINTAGEPRO_LAST_AUTO_ABSENCE_CHECK');
+      if (lastCheck === todayStr) return; // déjà fait aujourd'hui, on ne repasse plus de la journée
+
+      const h = now.getHours();
+      if (h < 9 || h >= 10) return; // en dehors de la fenêtre du matin (09h00–09h59) : on attend
+
+      let changed = false;
+      USERS_DATABASE.filter(e => e.role === 'employe' && e.actif !== false).forEach(emp => {
+        const already = ALL_POINTAGES.some(p => p.employeeId === emp.id && p.date === todayStr);
+        if (!already) {
+          ALL_POINTAGES.unshift({
+            employeeId: emp.id,
+            employeeName: emp.name,
+            employee: emp.name,
+            date: todayStr,
+            time: '09h00',
+            gps: '—',
+            status: 'Absent',
+            network: 'Système',
+            method: 'auto',
+            lateMinutes: 0,
+            synced: true
+          });
+          changed = true;
+        }
+      });
+
+      // On marque le passage du jour comme fait, que des absences aient été
+      // créées ou non (ex. tout le monde avait déjà pointé) : dans les deux
+      // cas, le contrôle du matin est terminé pour aujourd'hui.
+      localStorage.setItem('POINTAGEPRO_LAST_AUTO_ABSENCE_CHECK', todayStr);
+
+      if (changed) {
+        localStorage.setItem('POINTAGEPRO_POINTAGES', JSON.stringify(ALL_POINTAGES));
+        if (currentUser && currentUser.role === 'employe') {
+          myPointages = ALL_POINTAGES.filter(p => p.employeeId === currentUser.id);
+        }
+        updateStats(); renderManagerTable(); renderTodayTable(); updateManagerStats();
+      }
+    }
+
+    // ─── ENREGISTREMENT D'UN POINTAGE (scan caméra, upload, ou hors-ligne) ──
+    function saveRealPointage(gpsStr, forceOffline = false, method = 'scan') {
+      const now = new Date();
+      const todayStr = now.toLocaleDateString('fr-FR');
+
+      // Empêche un double pointage le même jour (scan répété, upload multiple, etc.)
+      // qui fausserait les statistiques de présence/retard.
+      const alreadyToday = myPointages.some(p => p.date === todayStr && p.status !== 'Absent');
+      if (alreadyToday) {
+        showToast('Déjà pointé', 'Vous avez déjà enregistré votre présence aujourd\'hui', 'amber', 'fa-exclamation-circle');
+        return;
+      }
+
       const h = now.getHours().toString().padStart(2, '0');
       const m = now.getMinutes().toString().padStart(2, '0');
       const timeStr = `${h}h${m}`;
 
-      const isLate = parseInt(h) > 8 || (parseInt(h) === 8 && parseInt(m) > 5);
-      const status = isLate ? 'Retard' : 'Présent';
+      const { status, lateMinutes } = computeAttendance(now);
 
       const pointage = {
         employeeId: currentUser.id,
         employeeName: currentUser.name,
-        date: now.toLocaleDateString('fr-FR'),
+        date: todayStr,
         time: timeStr,
         gps: gpsStr,
         status: status,
+        lateMinutes: lateMinutes,
+        method: forceOffline || !isOnline ? 'hors-ligne' : method, // 'scan' | 'upload' | 'hors-ligne'
         network: (forceOffline || !isOnline) ? 'Hors-ligne' : (Math.random() > .5 ? 'Wi-Fi' : '4G'),
         employee: currentUser.name,
         synced: !(forceOffline || !isOnline)
       };
+
+      // Si un pointage "Absent" a déjà été généré automatiquement à 09h00 pour
+      // aujourd'hui, on le remplace par ce pointage réel plutôt que d'empiler
+      // les deux (l'employé a fini par pointer, il n'est donc plus absent).
+      const autoAbsentIdx = ALL_POINTAGES.findIndex(p => p.employeeId === currentUser.id && p.date === todayStr && p.status === 'Absent');
+      if (autoAbsentIdx !== -1) ALL_POINTAGES.splice(autoAbsentIdx, 1);
+      const myAutoAbsentIdx = myPointages.findIndex(p => p.date === todayStr && p.status === 'Absent');
+      if (myAutoAbsentIdx !== -1) myPointages.splice(myAutoAbsentIdx, 1);
 
       ALL_POINTAGES.unshift(pointage);
       myPointages.unshift(pointage);
@@ -3125,30 +3939,42 @@
       showResult(pointage, forceOffline || !isOnline);
     }
 
-    function simulateScan(offline = false) {
-      const btn = document.getElementById('scanBtn');
-      if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scan en cours…';
+    // ─── POINTAGE PAR UPLOAD DE QR (alternative au scan caméra) ──────
+    function handleQrFileUpload(inputEl, forceOffline) {
+      const file = inputEl.files && inputEl.files[0];
+      if (!file) return;
+
+      if (!isPointageProActive()) {
+        showToast('Pointage suspendu', 'Le RH a désactivé PointagePro pour le moment', 'amber', 'fa-pause-circle');
+        inputEl.value = '';
+        return;
       }
 
-      setTimeout(() => {
-        // Generate Madagascar GPS coordinates
-        const lat = (18.8 + Math.random() * 0.1).toFixed(4);
-        const lon = (47.5 + Math.random() * 0.1).toFixed(4);
-        const gps = `${lat}° S, ${lon}° E`;
+      showToast('Lecture du QR…', 'Analyse de l\'image en cours', 'blue', 'fa-spinner');
 
-        saveRealPointage(gps, offline);
+      if (!_qrFileScanner) {
+        _qrFileScanner = new Html5Qrcode("reader");
+      }
 
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fas fa-camera"></i> Activer la Caméra (Scan QR)';
-        }
-      }, 1800);
-    }
-
-    function simulateScanOffline() {
-      simulateScan(true);
+      _qrFileScanner.scanFile(file, false)
+        .then(decodedText => {
+          // Le QR uploadé peut être le QR personnel de l'employé (EMPQR_...) ou le QR dynamique RH (POINTAGEPRO_TOKEN_...)
+          if (decodedText.startsWith('EMPQR_') && decodedText !== currentUser.qrToken) {
+            showToast('QR invalide', 'Ce QR Code personnel ne correspond pas à votre compte', 'red', 'fa-exclamation-triangle');
+            inputEl.value = '';
+            return;
+          }
+          const gps = forceOffline
+            ? '18.8792° S, 47.5079° E (pointage hors-ligne)'
+            : `${(18.8 + Math.random() * 0.1).toFixed(4)}° S, ${(47.5 + Math.random() * 0.1).toFixed(4)}° E`;
+          saveRealPointage(gps, forceOffline, 'upload');
+          inputEl.value = '';
+        })
+        .catch(err => {
+          console.error('[PointagePro] Erreur lecture QR uploadé:', err);
+          showToast('Erreur', 'QR Code illisible dans cette image', 'red', 'fa-exclamation-triangle');
+          inputEl.value = '';
+        });
     }
 
     function showResult(p, offline) {
@@ -3169,7 +3995,7 @@
         icon.className = 'fas fa-clock';
         icon.style.color = 'var(--amber)';
         title.textContent = `Pointage enregistré — ${p.time}`;
-        sub.textContent = 'Vous avez été enregistré avec un retard.';
+        sub.textContent = `Retard de ${p.lateMinutes} minute${p.lateMinutes > 1 ? 's' : ''} (arrivée prévue à 07h00).`;
       } else {
         iconWrap.className = 'result-icon success';
         icon.className = 'fas fa-check';
@@ -3202,10 +4028,37 @@
 
     // ─── STATS ───────────────────────────────────────────────────────
     function updateStats() {
-      const present = myPointages.filter(p => p.status === 'Présent').length;
-      const retard = myPointages.filter(p => p.status === 'Retard').length;
-      const absent = myPointages.filter(p => p.status === 'Absent').length;
-      const total = myPointages.length;
+      if (currentUser && currentUser.role === 'manager') {
+        // Le Profil d'un RH n'a pas de pointages personnels : on y affiche
+        // plutôt une vue globale de l'entreprise, pour un vrai "contrôle total".
+        const employeesOnly = EMPLOYEES.filter(e => e.role === 'employe');
+        const totalPointages = ALL_POINTAGES.length;
+        const retards = ALL_POINTAGES.filter(p => p.status === 'Retard').length;
+        const presentOrRetard = ALL_POINTAGES.filter(p => p.status === 'Présent' || p.status === 'Retard').length;
+        const taux = totalPointages > 0 ? Math.round((presentOrRetard / totalPointages) * 100) + '%' : '—';
+
+        document.getElementById('profileTaux').textContent = taux;
+        document.getElementById('profileTauxLabel').textContent = 'Taux présence global';
+        document.getElementById('profileRetards').textContent = retards;
+        document.getElementById('profileRetardsLabel').textContent = 'Retards (tous employés)';
+        document.getElementById('profileTotal').textContent = employeesOnly.length;
+        document.getElementById('profileTotalLabel').textContent = 'Employés actifs';
+        document.getElementById('syncInfo').textContent = `${pendingPointages.length} pointage(s) hors-ligne en attente (tous employés)`;
+        return;
+      }
+
+      // "Présent ce mois" doit refléter le MOIS EN COURS réellement, et pas
+      // tout l'historique de l'employé — sinon le libellé ment sur ce qu'il
+      // affiche. On ne garde donc que les pointages du mois/année actuels.
+      const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      const now = new Date();
+      const currentMonthValue = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const monthlyPointages = myPointages.filter(p => matchesMonthFilter(p.date, currentMonthValue));
+
+      const present = monthlyPointages.filter(p => p.status === 'Présent').length;
+      const retard = monthlyPointages.filter(p => p.status === 'Retard').length;
+      const absent = monthlyPointages.filter(p => p.status === 'Absent').length;
+      const total = monthlyPointages.length;
       const taux = total > 0 ? Math.round(((present + retard) / total) * 100) + '%' : '—';
 
       // "Présent ce mois" doit refléter le taux de présence juste au-dessus :
@@ -3215,9 +4068,14 @@
       document.getElementById('countRetard').textContent = retard;
       document.getElementById('countAbsent').textContent = absent;
       document.getElementById('tauxPresence').textContent = taux;
+      const statMonthNameEl = document.getElementById('statMonthName');
+      if (statMonthNameEl) statMonthNameEl.textContent = monthNames[now.getMonth()];
       document.getElementById('profileTaux').textContent = taux;
+      document.getElementById('profileTauxLabel').textContent = 'Taux présence';
       document.getElementById('profileRetards').textContent = retard;
+      document.getElementById('profileRetardsLabel').textContent = 'Retards';
       document.getElementById('profileTotal').textContent = total;
+      document.getElementById('profileTotalLabel').textContent = monthNames[now.getMonth()];
       document.getElementById('syncInfo').textContent = `${pendingPointages.length} pointage(s) en attente`;
 
       renderRecentPointages();
@@ -3253,8 +4111,40 @@
       renderHistory();
     }
 
+    // Génère dynamiquement les options du filtre "mois" de l'historique à
+    // partir de la date du jour (le mois en cours + les 11 précédents) —
+    // auparavant les options étaient figées en dur ("Mai 2026", "Avril 2026",
+    // "Mars 2026"), sans rapport avec la date réelle, et n'étaient même pas
+    // utilisées pour filtrer quoi que ce soit.
+    function populateMonthFilter() {
+      const sel = document.getElementById('monthFilter');
+      if (!sel) return;
+      const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+      const now = new Date();
+      const options = ['<option value="all">Tous les mois</option>'];
+      for (let i = 0; i < 12; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        options.push(`<option value="${value}">${monthNames[d.getMonth()]} ${d.getFullYear()}</option>`);
+      }
+      sel.innerHTML = options.join('');
+      sel.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    // Vérifie si une date au format JJ/MM/AAAA appartient au mois sélectionné
+    // dans le filtre (valeur au format AAAA-MM, ou "all" pour tout afficher).
+    function matchesMonthFilter(dateStr, monthValue) {
+      if (!monthValue || monthValue === 'all') return true;
+      const parts = String(dateStr).split('/');
+      if (parts.length !== 3) return true;
+      const [, mo, y] = parts;
+      return `${y}-${mo.padStart(2, '0')}` === monthValue;
+    }
+
     function renderHistory() {
-      const allData = [...SAMPLE_HIST, ...myPointages.map(p => ({ ...p, date: p.date || new Date().toLocaleDateString('fr-FR') }))];
+      const selectedMonth = document.getElementById('monthFilter')?.value || 'all';
+      const allDataUnfiltered = [...SAMPLE_HIST, ...myPointages.map(p => ({ ...p, date: p.date || new Date().toLocaleDateString('fr-FR') }))];
+      const allData = allDataUnfiltered.filter(p => matchesMonthFilter(p.date, selectedMonth));
       // "Retard" reste un pointage PRÉSENT (juste enregistré en retard) :
       // ce n'est pas une absence. L'onglet "Présent" doit donc aussi
       // inclure les pointages "Retard", sinon un employé arrivé en retard
@@ -3267,7 +4157,12 @@
           ? allData.filter(p => p.status === 'Présent' || p.status === 'Retard')
           : allData.filter(p => p.status === histFilter);
 
-      const p = allData.filter(x => x.status === 'Présent').length;
+      // Un "Retard" reste un pointage PRÉSENT (l'employé est bien venu), donc
+      // le compteur "Présent" de l'historique doit l'inclure — comme c'est
+      // déjà le cas sur la page Accueil (updateStats). Sans ça, un employé
+      // qui n'a que des retards voyait "0 Présent" alors qu'il a bien pointé
+      // à chaque fois.
+      const p = allData.filter(x => x.status === 'Présent' || x.status === 'Retard').length;
       const r = allData.filter(x => x.status === 'Retard').length;
       const a = allData.filter(x => x.status === 'Absent').length;
       document.getElementById('hCountPresent').textContent = p;
@@ -3304,23 +4199,32 @@
     }
 
     function renderManagerTable() {
+      syncEmployeesFromStorage();
+      syncPointagesFromStorage();
       const el = document.getElementById('managerTable');
       const employeesOnly = EMPLOYEES.filter(e => e.role === 'employe');
       if (employeesOnly.length === 0) {
-        el.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-3);padding:24px;">Aucun employé enregistré</td></tr>`;
+        el.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-3);padding:24px;">Aucun employé enregistré</td></tr>`;
         return;
       }
       el.innerHTML = employeesOnly.map(emp => {
         const empPointages = ALL_POINTAGES.filter(p => p.employeeId === emp.id);
-        const present = empPointages.filter(p => p.status === 'Présent').length;
+        const presentOnTime = empPointages.filter(p => p.status === 'Présent').length;
         const retard = empPointages.filter(p => p.status === 'Retard').length;
         const absent = empPointages.filter(p => p.status === 'Absent').length;
-        const total = present + retard + absent;
-        const taux = total > 0 ? Math.round(((present + retard) / total) * 100) : 0;
+        // Un "Retard" reste une venue au travail (l'employé a bien pointé, juste
+        // en retard) : la colonne "Présences" doit donc inclure les retards,
+        // sinon un employé qui n'a que des retards affiche "0 Présences" alors
+        // qu'il a bien pointé à chaque fois. La colonne "Retards" reste, elle,
+        // un détail précis sur le nombre de retards.
+        const present = presentOnTime + retard;
+        const total = presentOnTime + retard + absent;
+        const taux = total > 0 ? Math.round((present / total) * 100) : 0;
         const initials = emp.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-        const st = absent > 2 ? 'Attention' : retard > 2 ? 'À surveiller' : 'Normal';
-        const stBadge = absent > 2 ? 'badge-red' : retard > 2 ? 'badge-amber' : 'badge-green';
-        return `<tr>
+        const isActive = emp.actif !== false;
+        const st = !isActive ? 'Désactivé' : absent > 2 ? 'Attention' : retard > 2 ? 'À surveiller' : 'Normal';
+        const stBadge = !isActive ? 'badge-red' : absent > 2 ? 'badge-red' : retard > 2 ? 'badge-amber' : 'badge-green';
+        return `<tr style="${isActive ? '' : 'opacity:.55'}">
       <td><div class="td-name">${tdAvatarHtml(emp, initials)}<div><div style="font-weight:600">${emp.name}</div><div style="font-size:12px;color:var(--text-2)">${emp.poste}</div></div></div></td>
       <td style="color:var(--text-2);font-size:13px">${emp.poste}</td>
       <td style="font-weight:700;color:var(--green)">${present}</td>
@@ -3328,8 +4232,51 @@
       <td style="font-weight:700;color:var(--red)">${absent}</td>
       <td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:var(--border);border-radius:3px"><div style="width:${taux}%;height:100%;background:var(--green);border-radius:3px"></div></div><span style="font-size:12px;font-weight:700;min-width:32px">${taux}%</span></div></td>
       <td><span class="badge ${stBadge}">${st}</span></td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline btn-sm" onclick="toggleEmployeeActive('${emp.id}')" title="${isActive ? 'Désactiver ce compte' : 'Réactiver ce compte'}">
+            <i class="fas ${isActive ? 'fa-user-slash' : 'fa-user-check'}"></i>
+          </button>
+          <button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deleteEmployee('${emp.id}')" title="Supprimer ce compte">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </td>
     </tr>`;
       }).join('');
+    }
+
+    // ─── GESTION DES COMPTES EMPLOYÉS (RH) ─────────────────────────────
+    function toggleEmployeeActive(employeeId) {
+      const emp = USERS_DATABASE.find(u => u.id === employeeId);
+      if (!emp) return;
+      emp.actif = emp.actif === false ? true : false;
+      localStorage.setItem('POINTAGEPRO_USERS', JSON.stringify(USERS_DATABASE));
+      showToast(
+        emp.actif ? 'Compte réactivé' : 'Compte désactivé',
+        `${emp.name} ${emp.actif ? 'peut de nouveau se connecter' : 'ne peut plus se connecter'}`,
+        emp.actif ? 'green' : 'amber',
+        emp.actif ? 'fa-user-check' : 'fa-user-slash'
+      );
+      renderManagerTable();
+    }
+
+    function deleteEmployee(employeeId) {
+      const emp = USERS_DATABASE.find(u => u.id === employeeId);
+      if (!emp) return;
+      if (!confirm(`Supprimer définitivement le compte de ${emp.name} et tout son historique de pointage ?`)) return;
+
+      const idx = USERS_DATABASE.findIndex(u => u.id === employeeId);
+      if (idx !== -1) USERS_DATABASE.splice(idx, 1);
+      localStorage.setItem('POINTAGEPRO_USERS', JSON.stringify(USERS_DATABASE));
+
+      ALL_POINTAGES = ALL_POINTAGES.filter(p => p.employeeId !== employeeId);
+      localStorage.setItem('POINTAGEPRO_POINTAGES', JSON.stringify(ALL_POINTAGES));
+
+      showToast('Compte supprimé', `${emp.name} a été retiré de la liste des employés`, 'red', 'fa-trash');
+      renderManagerTable();
+      updateManagerStats();
+      renderTodayTable();
     }
 
     function renderTodayTable() {
@@ -3337,18 +4284,24 @@
       const todayStr = new Date().toLocaleDateString('fr-FR');
       const todayPointages = ALL_POINTAGES.filter(p => p.date === todayStr);
       if (todayPointages.length === 0) {
-        el.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:24px;">Aucun pointage aujourd'hui</td></tr>`;
+        el.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-3);padding:24px;">Aucun pointage aujourd'hui</td></tr>`;
         return;
       }
+      const methodLabel = { 'scan': 'Scan caméra', 'upload': 'Upload QR', 'hors-ligne': 'Hors-ligne', 'auto': 'Auto (absence)' };
+      const methodIcon = { 'scan': 'fa-camera', 'upload': 'fa-upload', 'hors-ligne': 'fa-wifi-slash', 'auto': 'fa-robot' };
       el.innerHTML = todayPointages.map(p => {
         const emp = EMPLOYEES.find(e => e.id === p.employeeId);
         const empName = emp ? emp.name : p.employeeName;
         const initials = empName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
         const net = p.network === 'Hors-ligne' ? 'badge-amber' : 'badge-blue';
         const st = p.status === 'Présent' ? 'badge-green' : p.status === 'Retard' ? 'badge-amber' : 'badge-red';
+        const method = p.method || 'scan';
+        const lateInfo = p.status === 'Retard' && p.lateMinutes ? ` <span style="color:var(--amber);font-size:11px">(+${p.lateMinutes} min)</span>` : '';
         return `<tr>
       <td><div class="td-name">${tdAvatarHtml(emp, initials)}<span style="font-weight:600">${empName}</span></div></td>
-      <td style="font-family:var(--font-mono);font-weight:700">${p.time}</td>
+      <td style="font-size:12px;color:var(--text-2)">${p.date}</td>
+      <td style="font-family:var(--font-mono);font-weight:700">${p.time}${lateInfo}</td>
+      <td style="font-size:12px"><i class="fas ${methodIcon[method] || 'fa-camera'}"></i> ${methodLabel[method] || method}</td>
       <td style="font-size:12px;color:var(--text-2)">${p.gps}</td>
       <td><span class="badge ${net}">${p.network}</span></td>
       <td><span class="badge ${st}">${p.status}</span></td>
@@ -3378,6 +4331,8 @@
     }
 
     function updateManagerStats() {
+      syncEmployeesFromStorage();
+      syncPointagesFromStorage();
       const employeesOnly = EMPLOYEES.filter(e => e.role === 'employe');
       const totalPointages = ALL_POINTAGES.length;
       const retards = ALL_POINTAGES.filter(p => p.status === 'Retard').length;
@@ -3404,6 +4359,14 @@
       if (taEl) taEl.textContent = `${tauxAnomalies}%`;
     }
 
+    // ─── RAFRAÎCHISSEMENT MANUEL DU TABLEAU DE BORD RH ─────────────────
+    function chargerTableauDeBord() {
+      renderManagerTable();
+      renderTodayTable();
+      updateManagerStats();
+      showToast('Actualisé', 'Tableau de bord mis à jour', 'green', 'fa-sync');
+    }
+
     // ─── TABS ─────────────────────────────────────────────────────────
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -3418,11 +4381,13 @@
       const employeesOnly = EMPLOYEES.filter(e => e.role === 'employe');
       employeesOnly.forEach(emp => {
         const empPointages = ALL_POINTAGES.filter(p => p.employeeId === emp.id);
-        const present = empPointages.filter(p => p.status === 'Présent').length;
+        const presentOnTime = empPointages.filter(p => p.status === 'Présent').length;
         const retard = empPointages.filter(p => p.status === 'Retard').length;
         const absent = empPointages.filter(p => p.status === 'Absent').length;
-        const total = present + retard + absent;
-        const taux = total > 0 ? Math.round(((present + retard) / total) * 100) + '%' : '0%';
+        // Un retard reste une présence (l'employé a bien pointé).
+        const present = presentOnTime + retard;
+        const total = presentOnTime + retard + absent;
+        const taux = total > 0 ? Math.round((present / total) * 100) + '%' : '0%';
         rows.push([emp.name, emp.poste, present, retard, absent, taux]);
       });
       const csv = rows.map(r => r.join(',')).join('\n');
@@ -3435,11 +4400,13 @@
       const employeesOnly = EMPLOYEES.filter(e => e.role === 'employe');
       employeesOnly.forEach(emp => {
         const empPointages = ALL_POINTAGES.filter(p => p.employeeId === emp.id);
-        const present = empPointages.filter(p => p.status === 'Présent').length;
+        const presentOnTime = empPointages.filter(p => p.status === 'Présent').length;
         const retard = empPointages.filter(p => p.status === 'Retard').length;
         const absent = empPointages.filter(p => p.status === 'Absent').length;
-        const total = present + retard + absent;
-        const taux = total > 0 ? Math.round(((present + retard) / total) * 100) + '%' : '0%';
+        // Un retard reste une présence (l'employé a bien pointé).
+        const present = presentOnTime + retard;
+        const total = presentOnTime + retard + absent;
+        const taux = total > 0 ? Math.round((present / total) * 100) + '%' : '0%';
         rows.push([emp.name, emp.matricule, emp.poste, present, retard, absent, taux]);
       });
       const csv = rows.map(r => r.join('\t')).join('\n');
@@ -3517,8 +4484,18 @@
 
       document.getElementById('syncStatus').innerHTML = '<i class="fas fa-check-circle" style="color:var(--green)"></i> Synchronisé';
       document.getElementById('syncInfo').textContent = '0 pointage(s) en attente';
-      document.getElementById('pendingCount').textContent = '0 en attente';
-      document.getElementById('offlineBanner').classList.remove('show');
+      const pendingCountEl = document.getElementById('pendingCount');
+      if (pendingCountEl) pendingCountEl.textContent = '0 en attente';
+      const offlineBannerEl = document.getElementById('offlineBanner');
+      if (offlineBannerEl) offlineBannerEl.classList.remove('show');
+
+      // Répercuter la synchro partout : dashboard employé, dashboard RH, et
+      // la section "Hors-ligne" côté RH (qui doit se vider une fois synchronisé).
+      updateStats();
+      renderManagerTable();
+      renderTodayTable();
+      updateManagerStats();
+      renderOfflineSectionRH();
     }
 
     // ─── THEME ───────────────────────────────────────────────────────
@@ -3598,10 +4575,8 @@
       );
     }
   </script>
-<script src="dexie.min.js"></script>
 <script src="qrcode.min.js"></script>
 <script src="html5-qrcode.min.js"></script>
-<script src="app.js"></script>
 </body>
 
 </html>
