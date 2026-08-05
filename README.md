@@ -35,7 +35,7 @@ Conçu pour les environnements à connectivité instable (terrain, zones rurales
 
 | Ressource | Accès |
 |---|---|
-| **Application Android (APK)** | [`app-debug.apk`](https://github.com/otsutsukirajo-dev/Hexsec_-_Ideathon/releases/download/v1.0.0/app-debug.apk) |
+| **Application Android (APK)** | [`app-debug.apk`](https://github.com/otsutsukirajo-dev/Hexsec_-_Ideathon/releases/download/v1.0.2/app-debug.apk) |
 | **Application Desktop (Windows)** | [`PointagePro.Setup.1.0.0.exe`](https://github.com/otsutsukirajo-dev/Hexsec_-_Ideathon/releases/download/v1.0.0/PointagePro.Setup.1.0.0.exe) |
 | **Pitch (PowerPoint)** | [`PointagePro_DataDay2026.pptx`](./PointagePro_DataDay2026.pptx) |
 | **Version web (PWA)** | Ouvrir `index.html`, ou suivre la section [Installation](#-installation) |
