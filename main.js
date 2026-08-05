@@ -89,7 +89,6 @@ function createWindow() {
 app.commandLine.appendSwitch('no-sandbox');
 app.commandLine.appendSwitch('disable-gpu-sandbox');
 app.commandLine.appendSwitch('allow-file-access-from-files');
-app.commandLine.appendSwitch('use-fake-ui-for-media-stream');
 
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {

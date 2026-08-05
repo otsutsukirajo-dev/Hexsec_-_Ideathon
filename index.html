@@ -33,11 +33,19 @@
     console.log(
       '[PointagePro] Contexte :', window.IS_ELECTRON ? 'Electron (file://)' : 'Navigateur'
     );
+
+    // ─── THEME : appliqué immédiatement pour éviter le flash de mauvais thème ───
+    try {
+      const savedTheme = localStorage.getItem('POINTAGEPRO_THEME');
+      if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    } catch (e) { /* localStorage indisponible */ }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Space+Mono:wght@400;700&display=swap">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
   <style>
     :root {
       --green: #10b981;
@@ -50,10 +58,16 @@
       --red-light: #fee2e2;
       --blue: #3b82f6;
       --blue-light: #dbeafe;
-      --bg: #f8fafc;
+      --bg: #ffffff;
       --bg-card: #ffffff;
-      --bg-sidebar: #0f1923;
-      --text: #0f172a;
+      --bg-sidebar: #ffffff;
+      --sidebar-text: rgba(15, 23, 42, .6);
+      --sidebar-text-strong: #0f172a;
+      --sidebar-text-dim: rgba(15, 23, 42, .4);
+      --sidebar-hover-bg: rgba(15, 23, 42, .06);
+      --sidebar-hover-text: rgba(15, 23, 42, .9);
+      --sidebar-border: #e2e8f0;
+      --text: #0a0a0a;
       --text-2: #64748b;
       --text-3: #94a3b8;
       --border: #e2e8f0;
@@ -71,9 +85,15 @@
     }
 
     [data-theme="dark"] {
-      --bg: #0a0f18;
-      --bg-card: #111827;
-      --bg-sidebar: #060b12;
+      --bg: #000000;
+      --bg-card: #0d0d0d;
+      --bg-sidebar: #000000;
+      --sidebar-text: rgba(255, 255, 255, .55);
+      --sidebar-text-strong: #ffffff;
+      --sidebar-text-dim: rgba(255, 255, 255, .35);
+      --sidebar-hover-bg: rgba(255, 255, 255, .07);
+      --sidebar-hover-text: rgba(255, 255, 255, .9);
+      --sidebar-border: rgba(255, 255, 255, .08);
       --text: #f1f5f9;
       --text-2: #94a3b8;
       --text-3: #475569;
@@ -120,6 +140,7 @@
     .sidebar {
       width: var(--sidebar-w);
       background: var(--bg-sidebar);
+      border-right: 1px solid var(--sidebar-border);
       display: flex;
       flex-direction: column;
       position: fixed;
@@ -127,7 +148,7 @@
       left: 0;
       bottom: 0;
       z-index: 100;
-      transition: transform var(--transition);
+      transition: transform var(--transition), background var(--transition), border-color var(--transition);
     }
 
     .sidebar-logo {
@@ -135,7 +156,7 @@
       align-items: center;
       gap: 10px;
       padding: 20px 20px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      border-bottom: 1px solid var(--sidebar-border);
     }
 
     .logo-icon {
@@ -151,7 +172,7 @@
     }
 
     .logo-text {
-      color: #fff;
+      color: var(--sidebar-text-strong);
       font-weight: 700;
       font-size: 17px;
       letter-spacing: -.3px;
@@ -170,7 +191,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: rgba(255, 255, 255, .3);
+      color: var(--sidebar-text-dim);
       padding: 12px 10px 4px;
     }
 
@@ -180,7 +201,7 @@
       gap: 10px;
       padding: 10px 12px;
       border-radius: var(--radius-sm);
-      color: rgba(255, 255, 255, .55);
+      color: var(--sidebar-text);
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
@@ -190,8 +211,8 @@
     }
 
     .nav-item:hover {
-      background: rgba(255, 255, 255, .07);
-      color: rgba(255, 255, 255, .9);
+      background: var(--sidebar-hover-bg);
+      color: var(--sidebar-hover-text);
     }
 
     .nav-item.active {
@@ -217,7 +238,7 @@
 
     .sidebar-footer {
       padding: 12px 10px;
-      border-top: 1px solid rgba(255, 255, 255, .08);
+      border-top: 1px solid var(--sidebar-border);
     }
 
     .user-pill {
@@ -231,7 +252,7 @@
     }
 
     .user-pill:hover {
-      background: rgba(255, 255, 255, .07);
+      background: var(--sidebar-hover-bg);
     }
 
     .user-avatar {
@@ -246,6 +267,16 @@
       font-size: 13px;
       font-weight: 700;
       flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .user-avatar img,
+    .profile-avatar-lg img,
+    .td-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
     }
 
     .user-info {
@@ -254,7 +285,7 @@
     }
 
     .user-name {
-      color: #fff;
+      color: var(--sidebar-text-strong);
       font-size: 13px;
       font-weight: 600;
       white-space: nowrap;
@@ -263,7 +294,7 @@
     }
 
     .user-role {
-      color: rgba(255, 255, 255, .4);
+      color: var(--sidebar-text-dim);
       font-size: 11px;
     }
 
@@ -276,10 +307,12 @@
       right: 0;
       height: var(--nav-h);
       background: var(--bg-sidebar);
+      border-bottom: 1px solid var(--sidebar-border);
       z-index: 200;
       align-items: center;
       justify-content: space-between;
       padding: 0 16px;
+      transition: background var(--transition), border-color var(--transition);
     }
 
     .topbar-logo {
@@ -289,7 +322,7 @@
     }
 
     .topbar-logo-text {
-      color: #fff;
+      color: var(--sidebar-text-strong);
       font-weight: 700;
       font-size: 16px;
     }
@@ -304,14 +337,14 @@
       justify-content: center;
       gap: 5px;
       cursor: pointer;
-      background: rgba(255, 255, 255, .08);
+      background: var(--sidebar-hover-bg);
     }
 
     .hamburger span {
       display: block;
       width: 18px;
       height: 2px;
-      background: #fff;
+      background: var(--sidebar-text-strong);
       border-radius: 2px;
       transition: all var(--transition);
     }
@@ -943,6 +976,24 @@
       font-weight: 700;
     }
 
+    /* #reader réutilise .scanner-box (même taille/position que le
+       placeholder "Prêt à scanner"). Html5Qrcode y injecte un <video>
+       (et un <canvas> caché) dont la taille dépend de la résolution de
+       la caméra ; sans ces règles, la vidéo garde ses dimensions natives,
+       déborde du cadre de 220x220, et n'est ni centrée ni redimensionnée
+       correctement (c'était la cause du cadre étroit/décentré au scan). */
+    #reader video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover;
+      border-radius: inherit;
+    }
+
+    #reader img,
+    #reader > div {
+      width: 100% !important;
+    }
+
     .scanner-gps {
       display: flex;
       align-items: center;
@@ -1156,6 +1207,37 @@
       font-size: 28px;
       font-weight: 700;
       flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .profile-avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .avatar-upload-btn {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      border: 2px solid var(--green);
+      box-shadow: var(--shadow);
+      transition: all var(--transition);
+    }
+
+    .avatar-upload-btn:hover {
+      background: var(--green);
+      color: #fff;
+      transform: scale(1.08);
     }
 
     .profile-name {
@@ -1529,19 +1611,83 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       SCANNER NATIF CAPACITOR — RÈGLES DE TRANSPARENCE ABSOLUE
-       Quand .barcode-scanner-active est sur le body, la WebView
-       devient un calque transparent parfait pour laisser passer le
-       flux vidéo matériel en temps réel du plugin natif Capacitor.
+       MODE SCAN (commun aux deux moteurs : natif Capacitor ET Html5Qrcode)
+       Masque la chrome de l'app pour une UI plein écran. Le fond reste
+       opaque (var(--bg)) ici : c'est le comportement correct pour le
+       fallback navigateur/Electron, où il n'y a pas de flux caméra natif
+       sous la WebView. Rendre transparent ici causait un écran noir
+       (fond par défaut de la fenêtre) même en thème clair.
     ═══════════════════════════════════════════════════════════════════ */
 
-    /* — Couches conteneurs : alpha-channel à zéro — */
     body.barcode-scanner-active,
     body.barcode-scanner-active .app-layout,
     body.barcode-scanner-active .main-content,
     body.barcode-scanner-active .page,
-    body.barcode-scanner-active .page-body,
-    body.barcode-scanner-active .scanner-box {
+    body.barcode-scanner-active .page-body {
+        /* Toujours clair pendant le scan, quel que soit le thème choisi :
+           un fond sombre nuit à la fois à la lisibilité de l'écran et à
+           l'éclairage d'appoint que l'écran apporte à la caméra en
+           basse lumière. */
+        background: #f8fafc !important;
+        color: #0f172a !important;
+    }
+
+    /* La sidebar étant masquée pendant le scan, le décalage de marge qui
+       lui était réservé doit l'être aussi, sinon le cadre de scan reste
+       visuellement décalé vers la droite au lieu d'être vraiment centré. */
+    body.barcode-scanner-active .main-content {
+      margin-left: 0 !important;
+    }
+
+    /* Le cadre de scan est recentré sur l'écran ENTIER (et plus seulement
+       dans la zone de contenu), verticalement et horizontalement. */
+    body.barcode-scanner-active .scanner-wrap {
+      position: fixed !important;
+      inset: 0 !important;
+      margin: 0 !important;
+      min-height: 100vh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      z-index: 500;
+    }
+
+    body.barcode-scanner-active #statut-texte {
+      color: #475569 !important;
+    }
+
+    /* Tout le texte visible pendant le scan passe en sombre pour rester
+       lisible sur le nouveau fond clair (les boutons avec une couleur
+       forcée explicitement, comme #stopScanBtn en rouge/blanc, restent
+       inchangés grâce à leur spécificité plus élevée). */
+    body.barcode-scanner-active .scanner-wrap * {
+      color: #0f172a !important;
+    }
+
+    body.barcode-scanner-active .scanner-wrap .btn-outline {
+      border-color: #cbd5e1 !important;
+      background: #ffffff !important;
+    }
+
+    body.barcode-scanner-active .scanner-wrap .btn-outline:hover {
+      background: #e2e8f0 !important;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SCANNER NATIF CAPACITOR — RÈGLES DE TRANSPARENCE ABSOLUE
+       Uniquement quand .native-scanner-active est sur le body (ajouté
+       après confirmation que le plugin natif tourne), la WebView devient
+       un calque transparent pour laisser passer le flux vidéo matériel
+       en temps réel du plugin natif Capacitor.
+    ═══════════════════════════════════════════════════════════════════ */
+
+    body.native-scanner-active,
+    body.native-scanner-active .app-layout,
+    body.native-scanner-active .main-content,
+    body.native-scanner-active .page,
+    body.native-scanner-active .page-body,
+    body.native-scanner-active .scanner-box {
         background: transparent !important;
         background-color: transparent !important;
     }
@@ -1582,15 +1728,84 @@
     body.barcode-scanner-active #scanBtn {
       display: none !important;
     }
+
+    /* ─── LOADING OVERLAY (connexion) ─── */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #0f1923 0%, #0d2818 100%);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+
+    .loading-overlay.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .loading-box {
+      text-align: center;
+      color: #fff;
+    }
+
+    .loading-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 24px;
+      background: var(--green);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #fff;
+      box-shadow: 0 8px 32px rgba(16, 185, 129, .4);
+      animation: loadingPulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes loadingPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.08);
+      }
+    }
+
+    .loading-spinner {
+      font-size: 22px;
+      color: var(--green);
+      margin-bottom: 14px;
+    }
+
+    .loading-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, .75);
+      letter-spacing: .3px;
+    }
   </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- ✅ Bibliothèque QR Code locale — fonctionne 100% hors-ligne et sous Electron -->
+  <!-- Bibliothèque QR Code locale — fonctionne 100% hors-ligne et sous Electron -->
   <script src="qrcode.min.js"></script>
 </head>
 
 <body>
 
   <!-- LOGIN -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-box">
+      <div class="loading-icon"><i class="fas fa-qrcode"></i></div>
+      <div class="loading-spinner"><i class="fas fa-circle-notch fa-spin"></i></div>
+      <div class="loading-text" id="loadingText">Connexion en cours</div>
+    </div>
+  </div>
   <div id="loginPage" class="login-wrap">
     <div class="login-left">
       <div class="login-brand">
@@ -1704,7 +1919,7 @@
         <div class="logo-icon"><i class="fas fa-qrcode"></i></div>
         <span class="logo-text">PointagePro</span>
         <button class="theme-toggle" onclick="toggleTheme()" style="margin-left:auto" title="Thème">
-          <i class="fas fa-moon" id="themeIcon"></i>
+          <i class="fas fa-sun" id="themeIcon"></i>
         </button>
       </div>
       <nav class="sidebar-nav" id="sidebarNav">
@@ -1729,7 +1944,7 @@
         <span class="topbar-logo-text">PointagePro</span>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIconMobile"></i></button>
+        <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-sun" id="themeIconMobile"></i></button>
         <div class="hamburger" onclick="toggleSidebar()">
           <span></span><span></span><span></span>
         </div>
@@ -1751,7 +1966,7 @@
       <div class="page active" id="page-accueil">
         <div class="page-header">
           <div>
-            <div class="page-title" id="greetTitle">Bonjour 👋</div>
+            <div class="page-title" id="greetTitle"><i class="fas fa-mug-hot" style="color:var(--green);margin-right:8px;font-size:.85em"></i>Bonjour</div>
             <div class="page-subtitle" id="greetDate">Jeudi 28 Mai 2026 — Mode Employé</div>
           </div>
         </div>
@@ -1837,7 +2052,7 @@
 
         <!-- Conteneur pour Html5QrCode (fallback) -->
         <!-- IMPORTANT : Conteneur pour la caméra (Html5Qrcode) -->
-        <div id="reader" style="display:none; width:100%; max-width:320px; margin:20px auto; border:3px solid var(--green); border-radius:12px; overflow:hidden;"></div>
+        <div id="reader" class="scanner-box" style="display:none; margin:0 auto 15px;"></div>
         <!-- Boîte visuelle (visible par défaut) -->
         <div id="scannerBox" class="scanner-box" style="margin: 0 auto 15px;">
           <div class="scanner-corner tl"></div>
@@ -1896,7 +2111,9 @@
 
           <div class="filter-bar">
             <select class="month-select" id="monthFilter" onchange="renderHistory()">
-              <!-- Options générées dynamiquement par populateMonthFilter() -->
+              <option value="2026-05">Mai 2026</option>
+              <option value="2026-04">Avril 2026</option>
+              <option value="2026-03">Mars 2026</option>
             </select>
             <div class="filter-tabs">
               <div class="filter-tab active" onclick="setHistFilter('Tous',this)">Tous</div>
@@ -2066,7 +2283,13 @@
         </div>
         <div class="page-body" style="max-width:560px">
           <div class="profile-hero">
-            <div class="profile-avatar-lg" id="profileAvatarLg">JD</div>
+            <div class="profile-avatar-wrap">
+              <div class="profile-avatar-lg" id="profileAvatarLg">JD</div>
+              <label class="avatar-upload-btn" for="photoUploadInput" title="Changer la photo de profil">
+                <i class="fas fa-camera"></i>
+              </label>
+              <input type="file" id="photoUploadInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)">
+            </div>
             <div>
               <div class="profile-name" id="profileName">Jean Dupont</div>
               <div class="profile-role" id="profileRoleBadge">Employé</div>
@@ -2096,10 +2319,10 @@
             </div>
             <div class="info-body" id="profileInfoBody">
               <div class="info-row"><span class="info-key">Matricule</span><span class="info-val"
-                  id="pMatricule empty">Non renseigné</span></div>
-              <div class="info-row"><span class="info-key">Poste</span><span class="info-val" id="pPoste empty">Non
+                  id="pMatricule">Non renseigné</span></div>
+              <div class="info-row"><span class="info-key">Poste</span><span class="info-val" id="pPoste">Non
                   renseigné</span></div>
-              <div class="info-row"><span class="info-key">Téléphone</span><span class="info-val" id="pTel empty">Non
+              <div class="info-row"><span class="info-key">Téléphone</span><span class="info-val" id="pTel">Non
                   renseigné</span></div>
               <div class="info-row"><span class="info-key">Email</span><span class="info-val" id="pEmail">—</span></div>
             </div>
@@ -2111,7 +2334,7 @@
             <div
               style="padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
               <div>
-                <div style="font-size:14px;font-weight:600" id="syncStatus">✅ Synchronisé</div>
+                <div style="font-size:14px;font-weight:600" id="syncStatus"><i class="fas fa-check-circle" style="color:var(--green)"></i> Synchronisé</div>
                 <div style="font-size:12px;color:var(--text-2);margin-top:2px" id="syncInfo">0 pointage(s) en attente
                 </div>
               </div>
@@ -2179,7 +2402,7 @@
     let isOnline = navigator.onLine;
     let pendingPointages = JSON.parse(localStorage.getItem('POINTAGEPRO_PENDING')) || [];
     let myPointages = [];
-    let darkMode = false;
+    let darkMode = document.documentElement.getAttribute('data-theme') === 'dark';
     let qrInstance = null;
     let html5QrCode = null;
 
@@ -2208,7 +2431,7 @@
 
       // 3. Vérifier que la bibliothèque est disponible (protection offline/Electron)
       if (typeof QRCode === 'undefined') {
-        console.error('[PointagePro] ❌ QRCode est undefined — vérifiez que qrcode.min.js est présent et chargé localement.');
+        console.error('[PointagePro] QRCode est undefined — vérifiez que qrcode.min.js est présent et chargé localement.');
         container.innerHTML = `
           <div style="color:var(--red);font-size:12px;padding:8px;text-align:center;">
             <i class="fas fa-exclamation-triangle"></i><br>
@@ -2229,10 +2452,10 @@
           colorLight: '#ffffff',
           correctLevel: QRCode.CorrectLevel.H
         });
-        console.log('[PointagePro] ✅ QR Code généré pour :', token);
+        console.log('[PointagePro] QR Code généré pour :', token);
         showToast('QR Code mis à jour', 'Nouveau jeton généré avec succès', 'green', 'fa-sync-alt');
       } catch (err) {
-        console.error('[PointagePro] ❌ Erreur génération QR Code :', err);
+        console.error('[PointagePro] Erreur génération QR Code :', err);
         showToast('Erreur QR', 'Échec de la génération du QR Code', 'red', 'fa-exclamation-triangle');
       }
     }
@@ -2267,9 +2490,9 @@
           colorLight: '#ffffff',
           correctLevel: QRCode.CorrectLevel.M
         });
-        console.log('[PointagePro] ✅ QR Employé généré :', employeeId);
+        console.log('[PointagePro] QR Employé généré :', employeeId);
       } catch (err) {
-        console.error('[PointagePro] ❌ Erreur QR employé :', err);
+        console.error('[PointagePro] Erreur QR employé :', err);
         container.innerHTML = `<span style="color:red;font-size:12px;">Erreur génération QR</span>`;
       }
     }
@@ -2356,7 +2579,9 @@
         role: role,
         poste: poste || (role === 'manager' ? 'Responsable RH' : 'Technicien'),
         tel: tel || 'Non renseigné',
-        matricule: matricule
+        matricule: matricule,
+        photo: null,
+        loginCount: 0
       };
 
       USERS_DATABASE.push(user);
@@ -2398,7 +2623,18 @@
         return;
       }
 
-      doLoginUser(user);
+      showLoadingOverlay('Connexion en cours');
+      setTimeout(() => doLoginUser(user), 850);
+    }
+
+    function showLoadingOverlay(text) {
+      const overlay = document.getElementById('loadingOverlay');
+      document.getElementById('loadingText').textContent = text;
+      overlay.classList.add('show');
+    }
+
+    function hideLoadingOverlay() {
+      document.getElementById('loadingOverlay').classList.remove('show');
     }
 
     function doLogin() {
@@ -2407,8 +2643,12 @@
 
     function doLoginUser(u) {
       currentUser = u;
+      u.loginCount = (u.loginCount || 0) + 1;
       // Persister la sélection de l'utilisateur courant pour que `app.js` puisse la récupérer
-      try { localStorage.setItem('POINTAGEPRO_CURRENT_USER', u.id); } catch (e) {}
+      try {
+        sessionStorage.setItem('POINTAGEPRO_CURRENT_USER', u.id);
+        localStorage.setItem('POINTAGEPRO_USERS', JSON.stringify(USERS_DATABASE));
+      } catch (e) {}
       myPointages = ALL_POINTAGES.filter(p => p.employeeId === currentUser.id);
       pendingPointages = JSON.parse(localStorage.getItem('POINTAGEPRO_PENDING')) || [];
 
@@ -2423,14 +2663,44 @@
       document.getElementById('loginPage').style.display = 'none';
       document.getElementById('appRoot').style.display = 'flex';
       initApp();
+      hideLoadingOverlay();
     }
 
     function doLogout() {
       currentUser = null;
       myPointages = [];
-      try { localStorage.removeItem('POINTAGEPRO_CURRENT_USER'); } catch (e) {}
+      try { sessionStorage.removeItem('POINTAGEPRO_CURRENT_USER'); } catch (e) {}
       document.getElementById('appRoot').style.display = 'none';
       document.getElementById('loginPage').style.display = 'flex';
+      hideLoadingOverlay();
+    }
+
+    // Restaure la session si l'utilisateur était déjà connecté (évite la
+    // déconnexion automatique à chaque actualisation de la page).
+    function restoreSession() {
+      try {
+        const savedId = sessionStorage.getItem('POINTAGEPRO_CURRENT_USER');
+        if (!savedId) return false;
+        const user = USERS_DATABASE.find(u => u.id === savedId);
+        if (!user) return false;
+        currentUser = user;
+        user.loginCount = (user.loginCount || 0) + 1;
+        try { localStorage.setItem('POINTAGEPRO_USERS', JSON.stringify(USERS_DATABASE)); } catch (e) {}
+        myPointages = ALL_POINTAGES.filter(p => p.employeeId === currentUser.id);
+        pendingPointages = JSON.parse(localStorage.getItem('POINTAGEPRO_PENDING')) || [];
+        try {
+          if (typeof window !== 'undefined' && window.currentUser !== undefined) {
+            window.currentUser = user;
+            window.myPointages = ALL_POINTAGES.filter(p => p.employeeId === user.id);
+          }
+        } catch (e) {}
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('appRoot').style.display = 'flex';
+        initApp();
+        return true;
+      } catch (e) {
+        return false;
+      }
     }
 
     // ─── APP INIT ─────────────────────────────────────────────────────
@@ -2438,7 +2708,6 @@
       initSidebarForRole();
       updateUserUI();
       updateGreet();
-      populateMonthFilter();
       updateStats();
       renderManagerTable();
       renderTodayTable();
@@ -2485,13 +2754,19 @@
     </div>`).join('');
     }
 
+    function renderAvatarInto(elId, u, initials) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      el.innerHTML = u.photo ? `<img src="${u.photo}" alt="Photo de profil">` : initials;
+    }
+
     function updateUserUI() {
       const u = currentUser;
       const initials = u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-      document.getElementById('sidebarAvatar').textContent = initials;
+      renderAvatarInto('sidebarAvatar', u, initials);
       document.getElementById('sidebarName').textContent = u.name;
       document.getElementById('sidebarRole').textContent = u.role === 'manager' ? 'Manager RH' : 'Employé';
-      document.getElementById('profileAvatarLg').textContent = initials;
+      renderAvatarInto('profileAvatarLg', u, initials);
       document.getElementById('profileName').textContent = u.name;
       document.getElementById('profileRoleBadge').textContent = u.role === 'manager' ? 'Manager RH' : 'Employé';
       document.getElementById('pEmail').textContent = u.email;
@@ -2500,14 +2775,85 @@
       document.getElementById('pTel').textContent = u.tel;
     }
 
+    // ─── PHOTO DE PROFIL ────────────────────────────────────────────
+    // Redimensionne l'image (max 240px) et la compresse en JPEG avant de la
+    // stocker en base64, pour éviter de saturer le localStorage.
+    function handlePhotoUpload(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showToast('Erreur', 'Veuillez sélectionner un fichier image', 'red', 'fa-exclamation-triangle');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxSize = 240;
+          let { width, height } = img;
+          if (width > height) {
+            if (width > maxSize) { height = Math.round(height * (maxSize / width)); width = maxSize; }
+          } else {
+            if (height > maxSize) { width = Math.round(width * (maxSize / height)); height = maxSize; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+          currentUser.photo = dataUrl;
+          const idx = USERS_DATABASE.findIndex(u => u.id === currentUser.id);
+          if (idx !== -1) USERS_DATABASE[idx].photo = dataUrl;
+          try { localStorage.setItem('POINTAGEPRO_USERS', JSON.stringify(USERS_DATABASE)); } catch (err) {}
+          try {
+            if (typeof window !== 'undefined' && window.EMPLOYEES) {
+              window.EMPLOYEES = USERS_DATABASE;
+            }
+          } catch (err) {}
+
+          updateUserUI();
+          if (currentUser.role === 'manager') renderManagerTable();
+          showToast('Photo mise à jour', 'Votre photo de profil a été enregistrée', 'green', 'fa-user-check');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+      input.value = '';
+    }
+
     function updateGreet() {
       const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
       const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
       const now = new Date();
       const h = now.getHours();
-      const greet = h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
-      const emoji = h < 12 ? '👋' : h < 18 ? '☀️' : '🌙';
-      document.getElementById('greetTitle').textContent = `${greet}, ${currentUser.name.split(' ')[0]} ${emoji}`;
+      const firstName = currentUser.name.split(' ')[0];
+      const icon = h < 12 ? 'fa-mug-hot' : h < 18 ? 'fa-cloud-sun' : 'fa-moon';
+      const isNewUser = (currentUser.loginCount || 0) <= 1;
+
+      let title;
+      if (isNewUser) {
+        // Première connexion (compte tout juste créé) : accueil formel et nominatif
+        const greet = h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
+        title = `${greet}, ${firstName}`;
+      } else {
+        // Utilisateur récurrent : on évite de répéter "Bonjour Prénom" à chaque
+        // visite et on varie le message pour un ton plus naturel.
+        const returningPhrases = [
+          'Content de vous revoir',
+          'Ravi de vous revoir',
+          'Heureux de vous retrouver',
+          'Bon retour parmi nous'
+        ];
+        const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+        const phrase = returningPhrases[dayOfYear % returningPhrases.length];
+        title = `${phrase}, ${firstName}`;
+      }
+
+      document.getElementById('greetTitle').innerHTML = `<i class="fas ${icon}" style="color:var(--green);margin-right:8px;font-size:.85em"></i>${title}`;
       document.getElementById('greetDate').textContent =
         `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} — Mode ${currentUser.role === 'manager' ? 'Manager' : 'Employé'}`;
     }
@@ -2603,7 +2949,8 @@
         html5QrCode = new Html5Qrcode("reader");
       }
 
-      const qrConfig = { fps: 10, qrbox: { width: 250, height: 250 } };
+      const qrBoxSize = Math.min(340, Math.max(220, Math.floor((readerElement.clientWidth || 320) * 0.85)));
+      const qrConfig = { fps: 10, qrbox: { width: qrBoxSize, height: qrBoxSize } };
 
       // ── Stratégie robuste : on liste d'abord les caméras disponibles ──
       Html5Qrcode.getCameras()
@@ -2861,7 +3208,10 @@
       const total = myPointages.length;
       const taux = total > 0 ? Math.round(((present + retard) / total) * 100) + '%' : '—';
 
-      document.getElementById('countPresent').textContent = present;
+      // "Présent ce mois" doit refléter le taux de présence juste au-dessus :
+      // un retard reste une présence. On affiche donc présent + retard ici,
+      // et on garde le compteur "Retards" séparé pour le détail.
+      document.getElementById('countPresent').textContent = present + retard;
       document.getElementById('countRetard').textContent = retard;
       document.getElementById('countAbsent').textContent = absent;
       document.getElementById('tauxPresence').textContent = taux;
@@ -2896,31 +3246,6 @@
     }
 
     // ─── HISTORIQUE ──────────────────────────────────────────────────
-
-    /**
-     * Génère dynamiquement les options du sélecteur de mois (mois courant
-     * + 2 mois précédents), basées sur la date système réelle.
-     * Corrige le bug où "Mai/Avril/Mars 2026" étaient figés en dur et ne
-     * correspondaient jamais aux pointages réellement enregistrés
-     * (créés avec `new Date()` au moment du scan).
-     */
-    function populateMonthFilter() {
-      const sel = document.getElementById('monthFilter');
-      if (!sel) return;
-      const noms = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-      const now = new Date();
-      let optionsHtml = '';
-      for (let i = 0; i < 3; i++) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const y = d.getFullYear();
-        const m = (d.getMonth() + 1).toString().padStart(2, '0');
-        const value = `${y}-${m}`;
-        const label = `${noms[d.getMonth()]} ${y}`;
-        optionsHtml += `<option value="${value}">${label}</option>`;
-      }
-      sel.innerHTML = optionsHtml;
-    }
-
     function setHistFilter(f, el) {
       histFilter = f;
       document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
@@ -2929,23 +3254,18 @@
     }
 
     function renderHistory() {
-      const monthSel = document.getElementById('monthFilter');
-      const monthValue = monthSel ? monthSel.value : null; // ex: "2026-08"
-
-      const rawData = [...SAMPLE_HIST, ...myPointages.map(p => ({ ...p, date: p.date || new Date().toLocaleDateString('fr-FR') }))];
-
-      // Bug 1 (corrigé) : on filtre réellement par mois sélectionné, en comparant
-      // "YYYY-MM" extrait de p.date (format DD/MM/YYYY) avec la valeur du select.
-      const allData = monthValue
-        ? rawData.filter(p => {
-            const parts = p.date.split('/'); // [DD, MM, YYYY]
-            if (parts.length < 3) return false;
-            const pointageMonthValue = `${parts[2]}-${parts[1]}`;
-            return pointageMonthValue === monthValue;
-          })
-        : rawData;
-
-      const data = histFilter === 'Tous' ? allData : allData.filter(p => p.status === histFilter);
+      const allData = [...SAMPLE_HIST, ...myPointages.map(p => ({ ...p, date: p.date || new Date().toLocaleDateString('fr-FR') }))];
+      // "Retard" reste un pointage PRÉSENT (juste enregistré en retard) :
+      // ce n'est pas une absence. L'onglet "Présent" doit donc aussi
+      // inclure les pointages "Retard", sinon un employé arrivé en retard
+      // disparaît complètement du filtre "Présent" alors qu'il a bien
+      // pointé. L'onglet "Retard" reste, lui, un filtre précis sur les
+      // seuls retards.
+      const data = histFilter === 'Tous'
+        ? allData
+        : histFilter === 'Présent'
+          ? allData.filter(p => p.status === 'Présent' || p.status === 'Retard')
+          : allData.filter(p => p.status === histFilter);
 
       const p = allData.filter(x => x.status === 'Présent').length;
       const r = allData.filter(x => x.status === 'Retard').length;
@@ -2953,9 +3273,7 @@
       document.getElementById('hCountPresent').textContent = p;
       document.getElementById('hCountRetard').textContent = r;
       document.getElementById('hCountAbsent').textContent = a;
-      // Bug 2 (corrigé) : le compteur reflète maintenant la liste réellement affichée
-      // (data, filtrée par onglet ET par mois), plus allData (non filtrée par onglet).
-      document.getElementById('histSubtitle').textContent = `${data.length} enregistrement${data.length > 1 ? 's' : ''}`;
+      document.getElementById('histSubtitle').textContent = `${allData.length} enregistrement${allData.length > 1 ? 's' : ''}`;
 
       const el = document.getElementById('histList');
       if (data.length === 0) {
@@ -2979,6 +3297,12 @@
     function months() { return ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']; }
 
     // ─── MANAGER TABLE ────────────────────────────────────────────────
+    function tdAvatarHtml(person, initials) {
+      return person && person.photo
+        ? `<div class="td-avatar"><img src="${person.photo}" alt="${initials}"></div>`
+        : `<div class="td-avatar">${initials}</div>`;
+    }
+
     function renderManagerTable() {
       const el = document.getElementById('managerTable');
       const employeesOnly = EMPLOYEES.filter(e => e.role === 'employe');
@@ -2997,7 +3321,7 @@
         const st = absent > 2 ? 'Attention' : retard > 2 ? 'À surveiller' : 'Normal';
         const stBadge = absent > 2 ? 'badge-red' : retard > 2 ? 'badge-amber' : 'badge-green';
         return `<tr>
-      <td><div class="td-name"><div class="td-avatar">${initials}</div><div><div style="font-weight:600">${emp.name}</div><div style="font-size:12px;color:var(--text-2)">${emp.poste}</div></div></div></td>
+      <td><div class="td-name">${tdAvatarHtml(emp, initials)}<div><div style="font-weight:600">${emp.name}</div><div style="font-size:12px;color:var(--text-2)">${emp.poste}</div></div></div></td>
       <td style="color:var(--text-2);font-size:13px">${emp.poste}</td>
       <td style="font-weight:700;color:var(--green)">${present}</td>
       <td style="font-weight:700;color:var(--amber)">${retard}</td>
@@ -3023,7 +3347,7 @@
         const net = p.network === 'Hors-ligne' ? 'badge-amber' : 'badge-blue';
         const st = p.status === 'Présent' ? 'badge-green' : p.status === 'Retard' ? 'badge-amber' : 'badge-red';
         return `<tr>
-      <td><div class="td-name"><div class="td-avatar">${initials}</div><span style="font-weight:600">${empName}</span></div></td>
+      <td><div class="td-name">${tdAvatarHtml(emp, initials)}<span style="font-weight:600">${empName}</span></div></td>
       <td style="font-family:var(--font-mono);font-weight:700">${p.time}</td>
       <td style="font-size:12px;color:var(--text-2)">${p.gps}</td>
       <td><span class="badge ${net}">${p.network}</span></td>
@@ -3191,7 +3515,7 @@
       localStorage.setItem('POINTAGEPRO_POINTAGES', JSON.stringify(ALL_POINTAGES));
       localStorage.setItem('POINTAGEPRO_PENDING', JSON.stringify(pendingPointages));
 
-      document.getElementById('syncStatus').textContent = '✅ Synchronisé';
+      document.getElementById('syncStatus').innerHTML = '<i class="fas fa-check-circle" style="color:var(--green)"></i> Synchronisé';
       document.getElementById('syncInfo').textContent = '0 pointage(s) en attente';
       document.getElementById('pendingCount').textContent = '0 en attente';
       document.getElementById('offlineBanner').classList.remove('show');
@@ -3201,8 +3525,15 @@
     function toggleTheme() {
       darkMode = !darkMode;
       document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : '');
+      try { localStorage.setItem('POINTAGEPRO_THEME', darkMode ? 'dark' : 'light'); } catch (e) { /* ignore */ }
+      applyThemeIconState();
+    }
+
+    function applyThemeIconState() {
       const icons = [document.getElementById('themeIcon'), document.getElementById('themeIconMobile')];
-      icons.forEach(i => { if (i) { i.className = darkMode ? 'fas fa-sun' : 'fas fa-moon'; } });
+      // L'icône reflète le thème ACTUELLEMENT actif : soleil = mode clair actif,
+      // lune = mode sombre actif (et non l'inverse, pour éviter toute confusion).
+      icons.forEach(i => { if (i) { i.className = darkMode ? 'fas fa-moon' : 'fas fa-sun'; } });
     }
 
     // ─── TOAST ───────────────────────────────────────────────────────
@@ -3218,7 +3549,7 @@
     // ─── OFFLINE LISTENERS ───────────────────────────────────────────
     window.addEventListener('online', () => {
       isOnline = true;
-      document.getElementById('syncStatus').textContent = '✅ Synchronisé';
+      document.getElementById('syncStatus').innerHTML = '<i class="fas fa-check-circle" style="color:var(--green)"></i> Synchronisé';
       showToast('Connexion rétablie', 'Vous êtes à nouveau en ligne', 'green', 'fa-wifi');
       if (pendingPointages.length > 0) {
         forceSync();
@@ -3226,17 +3557,19 @@
     });
     window.addEventListener('offline', () => {
       isOnline = false;
-      document.getElementById('syncStatus').textContent = '⚠️ Hors-ligne';
+      document.getElementById('syncStatus').innerHTML = '<i class="fas fa-wifi-slash" style="color:var(--amber)"></i> Hors-ligne';
       document.getElementById('offlineBanner').classList.add('show');
       showToast('Connexion perdue', 'Mode hors-ligne activé', 'amber', 'fa-wifi-slash');
     });
 
     // ─── START ───────────────────────────────────────────────────────
     (function () {
+      applyThemeIconState();
+      restoreSession();
       // Check navigator online status initially
       if (!isOnline) {
         setTimeout(() => {
-          document.getElementById('syncStatus').textContent = '⚠️ Hors-ligne';
+          document.getElementById('syncStatus').innerHTML = '<i class="fas fa-wifi-slash"></i> Hors-ligne';
           document.getElementById('offlineBanner').classList.add('show');
         }, 500);
       }

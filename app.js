@@ -2,23 +2,47 @@
 // PointagePro - app.js (Version Corrigée)
 // =========================================================================
 
-console.log("[PointagePro] 🚀 Démarrage de l'application...");
+console.log("[PointagePro] Démarrage de l'application...");
 
 // --- Variables globales ---
+// NB : EMPLOYEES, ALL_POINTAGES, currentUser, pendingPointages, myPointages,
+// isOnline et html5QrCode sont déjà déclarées avec `let` dans le <script>
+// inline de index.html. Comme les scripts classiques partagent le même
+// scope global lexical, les redéclarer ici avec `let` provoquait un
+// "SyntaxError: Identifier '...' has already been declared" qui empêchait
+// TOUT ce fichier de s'exécuter (BUG CRITIQUE). On réutilise donc les
+// variables existantes par simple réaffectation, sans `let`.
 let db = null;
 let isScanning = false;
-let html5QrCode = null;
-let currentUser = null;
-let EMPLOYEES = JSON.parse(localStorage.getItem('POINTAGEPRO_USERS')) || [];
-let ALL_POINTAGES = JSON.parse(localStorage.getItem('POINTAGEPRO_POINTAGES')) || [];
-let pendingPointages = JSON.parse(localStorage.getItem('POINTAGEPRO_PENDING')) || [];
-let myPointages = [];
-let isOnline = navigator.onLine;
+html5QrCode = html5QrCode ?? null;
+currentUser = currentUser ?? null;
+EMPLOYEES = JSON.parse(localStorage.getItem('POINTAGEPRO_USERS')) || [];
+ALL_POINTAGES = JSON.parse(localStorage.getItem('POINTAGEPRO_POINTAGES')) || [];
+pendingPointages = JSON.parse(localStorage.getItem('POINTAGEPRO_PENDING')) || [];
+myPointages = myPointages ?? [];
+isOnline = navigator.onLine;
 
 const DB_POINTAGES_INDEX = '[id_employe+date]';
 
 function getCurrentIsoDate() {
   return new Date().toISOString().split('T')[0];
+}
+
+// Certains pointages (créés via le scanner "legacy" de index.html) sont
+// enregistrés avec une date au format français JJ/MM/AAAA, alors que ce
+// fichier compare au format ISO AAAA-MM-JJ. Sans cette normalisation, les
+// comparaisons de dates échouent silencieusement et les pointages du jour
+// n'apparaissent jamais sur le tableau de bord (BUG : "Accueil vide alors
+// qu'il y a des pointages dans l'Historique").
+function toIsoDate(dateStr) {
+  if (!dateStr) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+  const m = String(dateStr).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) {
+    const [, d, mo, y] = m;
+    return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  }
+  return dateStr;
 }
 
 function getCurrentTime() {
@@ -107,7 +131,7 @@ async function refreshCachesFromDb() {
 // =========================================================================
 async function initDatabase() {
   if (typeof Dexie === 'undefined') {
-    console.error("[DB] ❌ Dexie n'est pas chargé!");
+    console.error("[DB] Dexie n'est pas chargé!");
     return false;
   }
   try {
@@ -118,7 +142,7 @@ async function initDatabase() {
     });
 
     await db.open();
-    console.log("[DB] ✅ Base de données prête");
+    console.log("[DB] Base de données prête");
 
     if (ALL_POINTAGES.length > 0) {
       const existingCount = await db.pointages.count();
@@ -166,7 +190,7 @@ async function initDatabase() {
 
     return true;
   } catch (erreur) {
-    console.error("[DB] ❌ Erreur:", erreur);
+    console.error("[DB] Erreur:", erreur);
     return false;
   }
 }
@@ -204,6 +228,10 @@ async function startQRScanner() {
         }
       }
       await BarcodeScanner.hideBackground();
+      // Le fond ne devient transparent QU'ICI, une fois qu'on est sûr
+      // d'utiliser réellement la caméra native (donc qu'il y a bien un
+      // flux vidéo natif derrière la WebView pour la remplacer).
+      _activerModeScannerNatif();
       const result = await BarcodeScanner.startScan({ targetedFormats: ['QR_CODE'] });
       if (result.hasContent) {
         traiterCodeScanne(result.displayValue || result.rawValue || result.content);
@@ -222,23 +250,39 @@ async function startQRScanner() {
     html5QrCode = new Html5Qrcode("reader", { verbose: false });
   }
 
+  // Le qrbox (cadre de visée vert) ne doit jamais dépasser le conteneur
+  // #reader (220x220, cf. .scanner-box) sous peine d'être rogné par
+  // l'overflow:hidden du cadre. On le calcule donc à partir de la taille
+  // réelle du conteneur plutôt que de la largeur de la fenêtre.
+  const readerSize = reader ? reader.clientWidth || 220 : 220;
+  const computedBox = Math.max(120, Math.min(readerSize - 12, 260));
+  const scanConfig = { fps: 12, qrbox: { width: computedBox, height: computedBox } };
+  const onScanSuccess = (decodedText) => {
+    stopQRScanner();
+    traiterCodeScanne(decodedText);
+  };
+
+  // 2a. Tentative via énumération des caméras (id de périphérique précis)
+  let cameraId;
   try {
     const cameras = await Html5Qrcode.getCameras();
-    const cameraId = cameras.length ? cameras[cameras.length - 1].id : undefined;
-    const computedBox = Math.min(260, Math.max(120, Math.floor(window.innerWidth * 0.75)));
+    if (cameras && cameras.length) {
+      cameraId = cameras[cameras.length - 1].id;
+    }
+  } catch (enumErr) {
+    console.warn("[Scanner] Énumération des caméras impossible, tentative directe:", enumErr.message);
+  }
 
-    await html5QrCode.start(
-      cameraId,
-      {
-        fps: 12,
-        qrbox: { width: computedBox, height: computedBox }
-      },
-      (decodedText) => {
-        stopQRScanner();
-        traiterCodeScanne(decodedText);
-      },
-      () => {}
-    );
+  try {
+    if (cameraId) {
+      await html5QrCode.start(cameraId, scanConfig, onScanSuccess, () => {});
+    } else {
+      // 2b. Repli : demande directe d'accès caméra (déclenche elle-même la
+      // permission navigateur/Electron), utile quand l'énumération échoue
+      // ou renvoie une liste vide alors qu'une caméra existe réellement.
+      await html5QrCode.start({ facingMode: 'environment' }, scanConfig, onScanSuccess, () => {})
+        .catch(() => html5QrCode.start({ facingMode: 'user' }, scanConfig, onScanSuccess, () => {}));
+    }
   } catch (err) {
     console.error("[Scanner] Erreur:", err);
     showToast('Caméra non détectée', 'Utilisez le mode simulation', 'amber');
@@ -279,11 +323,26 @@ async function handleQRScanned(qrData) {
     return;
   }
 
+  if (!currentUser) {
+    showToast('Erreur', 'Vous devez être connecté pour pointer', 'red');
+    return;
+  }
+
+  // Le QR Code affiché sur l'écran du Manager encode un jeton de session
+  // générique (POINTAGEPRO_TOKEN_...), pas l'identifiant d'un employé en
+  // particulier : c'est l'employé actuellement connecté sur cet appareil
+  // qui pointe en le scannant.
+  if (token.startsWith('POINTAGEPRO_TOKEN_')) {
+    await enregistrerPointage(currentUser);
+    return;
+  }
+
   if (!db && (!EMPLOYEES || EMPLOYEES.length === 0)) {
     showToast('Erreur', 'Base de données indisponible', 'red');
     return;
   }
 
+  // Repli : QR Code personnel encodant directement un identifiant d'employé
   try {
     let employe = EMPLOYEES.find(e => {
       const ident = normalizeQrData(e.identifiant ?? e.id);
@@ -297,7 +356,7 @@ async function handleQRScanned(qrData) {
     if (employe) {
       await enregistrerPointage(employe);
     } else {
-      showToast('Erreur', 'Employé non trouvé', 'red');
+      showToast('Erreur', 'QR Code non reconnu', 'red');
     }
   } catch (err) {
     console.error('[QR] Erreur:', err);
@@ -309,11 +368,29 @@ async function handleQRScanned(qrData) {
 // 4. POINTAGE (avec anti-double pointage 24h)
 // =========================================================================
 function _activerModeScanner() {
+  // Masque la chrome de l'app (sidebar, topbar, bottom-nav...) pour les
+  // DEUX modes de scan. Ne touche PAS à la transparence du fond : celle-ci
+  // est réservée au scanner natif Capacitor (voir _activerModeScannerNatif).
   document.body.classList.add('barcode-scanner-active');
 }
 
 function _desactiverModeScanner() {
   document.body.classList.remove('barcode-scanner-active');
+  _desactiverModeScannerNatif();
+}
+
+// ─── Mode "caméra native transparente" (Capacitor uniquement) ─────────────
+// C'est CE mode qui rend le fond transparent pour laisser passer le flux
+// caméra natif. Il ne doit JAMAIS être activé pour le fallback Html5Qrcode
+// (navigateur / Electron), sinon la page devient transparente et affiche
+// le fond noir par défaut de la fenêtre au lieu du flux vidéo → écran noir
+// même en thème clair.
+function _activerModeScannerNatif() {
+  document.body.classList.add('native-scanner-active');
+}
+
+function _desactiverModeScannerNatif() {
+  document.body.classList.remove('native-scanner-active');
 }
 
 async function enregistrerPointage(employe) {
@@ -331,7 +408,7 @@ async function enregistrerPointage(employe) {
       myPointages.unshift(pointageData);
     }
 
-    showToast('✅ Succès', `${pointageData.employeeName} — Pointage enregistré (mode fallback)`, 'green');
+    showToast('Succès', `${pointageData.employeeName} — Pointage enregistré (mode fallback)`, 'green');
     if (typeof renderTodayTable === 'function') renderTodayTable();
     if (typeof renderManagerTable === 'function') renderManagerTable();
     if (typeof updateManagerStats === 'function') updateManagerStats();
@@ -367,7 +444,7 @@ async function enregistrerPointage(employe) {
       persistPointagesCache();
     }
 
-    showToast('✅ Succès', `${pointageData.employeeName} — Pointage enregistré`, 'green');
+    showToast('Succès', `${pointageData.employeeName} — Pointage enregistré`, 'green');
     chargerTableauDeBord();
     renderTodayTable();
     updateStats();
@@ -444,7 +521,7 @@ function showToast(title, msg, type = 'green', icon = 'fa-info-circle') {
 // 7. INITIALISATION
 // =========================================================================
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log("[Init] 🚀 PointagePro prêt");
+  console.log("[Init] PointagePro prêt");
 
   await initDatabase();
 
@@ -456,7 +533,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Initialiser currentUser depuis le stockage local si possible
   // Initialiser currentUser uniquement depuis la valeur persistée (pas de fallback automatique)
-  currentUser = EMPLOYEES.find(u => u.id === localStorage.getItem('POINTAGEPRO_CURRENT_USER')) || null;
+  currentUser = EMPLOYEES.find(u => u.id === sessionStorage.getItem('POINTAGEPRO_CURRENT_USER')) || null;
   if (currentUser) myPointages = ALL_POINTAGES.filter(p => p.employeeId === currentUser.id);
 
   const scanBtn = document.getElementById('scanBtn');
@@ -478,7 +555,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showToast('Mode hors-ligne', 'Données sauvegardées localement', 'amber');
   });
 
-  console.log("[Init] ✅ Application initialisée");
+  console.log("[Init] Application initialisée");
 });
 
 // =========================================================================
@@ -489,7 +566,7 @@ function renderTodayTable() {
   if (!el) return;
 
   const todayStr = getCurrentIsoDate();
-  const todayPointages = ALL_POINTAGES.filter(p => p.date === todayStr);
+  const todayPointages = ALL_POINTAGES.filter(p => toIsoDate(p.date) === todayStr);
 
   if (todayPointages.length === 0) {
     el.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:24px;">Aucun pointage aujourd'hui</td></tr>`;
@@ -502,10 +579,13 @@ function renderTodayTable() {
     const initials = escapeHtml(empName).split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
     const net = p.network === 'Hors-ligne' ? 'badge-amber' : 'badge-blue';
     const st = p.status === 'Présent' ? 'badge-green' : p.status === 'Retard' ? 'badge-amber' : 'badge-red';
+    const avatarHtml = (emp && emp.photo)
+      ? `<div class="td-avatar"><img src="${emp.photo}" alt="${escapeHtml(initials)}"></div>`
+      : `<div class="td-avatar">${escapeHtml(initials)}</div>`;
 
     return `
       <tr>
-        <td><div class="td-name"><div class="td-avatar">${escapeHtml(initials)}</div><span style="font-weight:600">${escapeHtml(empName)}</span></div></td>
+        <td><div class="td-name">${avatarHtml}<span style="font-weight:600">${escapeHtml(empName)}</span></div></td>
         <td style="font-family:var(--font-mono);font-weight:700">${escapeHtml(p.time)}</td>
         <td style="font-size:12px;color:var(--text-2)">${escapeHtml(p.gps)}</td>
         <td><span class="badge ${escapeHtml(net)}">${escapeHtml(p.network)}</span></td>
@@ -525,6 +605,16 @@ function updateStats() {
   if (document.getElementById('countRetard')) document.getElementById('countRetard').textContent = retard;
   if (document.getElementById('countAbsent')) document.getElementById('countAbsent').textContent = absent;
   if (document.getElementById('tauxPresence')) document.getElementById('tauxPresence').textContent = taux;
+
+  // Page Profil (mêmes chiffres, IDs différents)
+  if (document.getElementById('profileTaux')) document.getElementById('profileTaux').textContent = taux;
+  if (document.getElementById('profileRetards')) document.getElementById('profileRetards').textContent = retard;
+  if (document.getElementById('profileTotal')) document.getElementById('profileTotal').textContent = total;
+  if (document.getElementById('syncInfo')) {
+    document.getElementById('syncInfo').textContent = `${pendingPointages.length} pointage(s) en attente`;
+  }
+
+  if (typeof renderRecentPointages === 'function') renderRecentPointages();
 }
 
 async function forceSync() {
@@ -563,7 +653,7 @@ async function forceSync() {
   persistPointagesCache();
 
   if (document.getElementById('syncStatus')) {
-    document.getElementById('syncStatus').textContent = '✅ Synchronisé';
+    document.getElementById('syncStatus').innerHTML = '<i class="fas fa-check-circle" style="color:var(--green)"></i> Synchronisé';
   }
   if (document.getElementById('syncInfo')) {
     document.getElementById('syncInfo').textContent = '0 pointage(s) en attente';
